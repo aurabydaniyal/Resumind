@@ -1,6 +1,11 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const mongoose = require('mongoose');
 const app = require('../src/app');
+
+test.after(async () => {
+  await mongoose.disconnect();
+});
 
 // Helper to make mock requests to express app without running on real port
 function makeRequest(app, method, url, body = null, headers = {}) {
