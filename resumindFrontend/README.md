@@ -19,7 +19,7 @@ npm install
 
 # 2. Configure environment
 cp .env.example .env
-# Ensure VITE_API_BASE_URL points to your backend (e.g., http://localhost:5000/api/v1)
+# Ensure VITE_API_BASE_URL (or API_BASE_URL) points to your backend (e.g., http://localhost:5000/api/v1)
 
 # 3. Start development server
 npm run dev

@@ -1,6 +1,35 @@
-// Centralized API client for Resumind AI
+function normalizeBaseUrl(rawUrl) {
+  if (!rawUrl || typeof rawUrl !== 'string' || !rawUrl.trim()) {
+    return 'http://localhost:5000/api/v1';
+  }
+  let clean = rawUrl.trim().replace(/\/+$/, '');
+  // Auto-strip /health or /api/v1/health if accidentally pasted
+  clean = clean.replace(/\/health$/, '');
+  // Ensure the route prefix /api/v1 is present
+  if (!clean.endsWith('/api/v1')) {
+    clean = `${clean}/api/v1`;
+  }
+  return clean;
+}
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api/v1';
+function resolveBaseUrl() {
+  // 1. Injected at Vite build time via vite.config.js define
+  if (typeof __APP_API_URL__ !== 'undefined' && __APP_API_URL__) {
+    return normalizeBaseUrl(__APP_API_URL__);
+  }
+  // 2. Standard Vite runtime import.meta.env
+  const metaEnv = typeof import.meta !== 'undefined' && import.meta.env ? import.meta.env : {};
+  const candidate =
+    metaEnv.VITE_API_BASE_URL ||
+    metaEnv.API_BASE_URL ||
+    metaEnv.VITE_BACKEND_URL ||
+    metaEnv.BACKEND_URL ||
+    '';
+
+  return normalizeBaseUrl(candidate);
+}
+
+const BASE_URL = resolveBaseUrl();
 
 function getToken() {
   return localStorage.getItem('resumind_token');

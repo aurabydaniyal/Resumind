@@ -158,8 +158,10 @@ git push -u origin main
 1. In Vercel, click **Add New** > **Project** > Import your `resumind-frontend` repository.
 2. Framework Preset: **Vite**.
 3. Under **Environment Variables**, add:
-   - `VITE_API_BASE_URL` = `https://resumind-backend.vercel.app/api/v1`
-4. Click **Deploy**.
+   - Key: `VITE_API_BASE_URL` (or `API_BASE_URL`)
+   - Value: `https://resumind-backend.vercel.app/api/v1` *(or simply `https://resumind-backend.vercel.app` — do **NOT** add `/health` here, the frontend automatically appends the relevant endpoints!)*
+   - **Vercel Notice:** If Vercel prompts with *"Remove the public framework prefix to keep this value private... change the variable to Config"*, simply select **Plaintext / Config** in the Type dropdown. This is expected and safe because frontend web applications must expose the API URL to make browser fetch requests.
+4. Click **Deploy** (or **Redeploy** if already deployed).
 5. Once deployed, copy your Frontend URL (e.g. `https://resumind-frontend.vercel.app`).
 6. Return to your **Backend Vercel Project** > **Settings** > **Environment Variables** > update `FRONTEND_ORIGINS` to match your frontend domain (e.g., `https://resumind-frontend.vercel.app`), then trigger a redeploy of the backend so CORS allows client requests.
 
