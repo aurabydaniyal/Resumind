@@ -19,14 +19,7 @@ async function getHealth(req, res) {
     status: 'ok',
     service: 'Resumind AI Backend',
     version: '1.0.0',
-    timestamp: new Date().toISOString(),
-    environment: config.NODE_ENV,
-    database: dbStatus,
-    ...(dbError && { databaseError: dbError }),
-    aiProvider: {
-      status: aiProvider.isConfigured() ? 'active' : 'unconfigured',
-      configured: aiProvider.isConfigured()
-    }
+    timestamp: new Date().toISOString()
   });
 }
 

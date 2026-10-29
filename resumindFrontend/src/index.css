@@ -14,27 +14,97 @@ body {
   overflow-x: hidden;
 }
 
-/* Glassmorphism utility classes */
+/* Glassmorphism & 3D Depth Utility Classes */
 .glass-panel {
-  background: rgba(11, 19, 43, 0.65);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(59, 130, 246, 0.18);
-  box-shadow: 0 8px 32px 0 rgba(2, 6, 23, 0.5);
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.78) 0%, rgba(7, 14, 30, 0.85) 100%);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(96, 165, 250, 0.2);
+  border-top: 1px solid rgba(147, 197, 253, 0.32);
+  box-shadow:
+    0 20px 50px -12px rgba(2, 6, 23, 0.75),
+    0 0 1px 1px rgba(59, 130, 246, 0.08),
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.07);
 }
 
 .glass-card {
-  background: rgba(15, 23, 42, 0.6);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(59, 130, 246, 0.14);
-  box-shadow: 0 4px 20px -2px rgba(2, 6, 23, 0.4);
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  background: linear-gradient(145deg, rgba(15, 23, 42, 0.72) 0%, rgba(11, 19, 43, 0.55) 100%);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(59, 130, 246, 0.16);
+  border-top: 1px solid rgba(147, 197, 253, 0.25);
+  box-shadow:
+    0 10px 30px -5px rgba(2, 6, 23, 0.6),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.06);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.35s ease;
+  transform-style: preserve-3d;
 }
 
 .glass-card:hover {
-  border-color: rgba(96, 165, 250, 0.35);
-  box-shadow: 0 8px 30px -4px rgba(37, 99, 235, 0.25);
+  transform: translateY(-4px) scale(1.008);
+  border-color: rgba(96, 165, 250, 0.45);
+  box-shadow:
+    0 20px 40px -10px rgba(37, 99, 235, 0.32),
+    0 0 25px -5px rgba(59, 130, 246, 0.2),
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.card-3d {
+  perspective: 1200px;
+}
+
+.card-3d-inner {
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease;
+  transform-style: preserve-3d;
+}
+
+.card-3d:hover .card-3d-inner {
+  transform: rotateX(2deg) rotateY(-2deg) translateY(-5px);
+}
+
+.btn-3d {
+  position: relative;
+  background: linear-gradient(180deg, #3B82F6 0%, #2563EB 60%, #1D4ED8 100%);
+  border-top: 1px solid rgba(191, 219, 254, 0.45);
+  box-shadow:
+    0 6px 20px -3px rgba(37, 99, 235, 0.55),
+    0 2px 0 0 #1E3A8A,
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.25);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-3d:hover:not(:disabled) {
+  transform: translateY(-2px);
+  background: linear-gradient(180deg, #60A5FA 0%, #3B82F6 60%, #2563EB 100%);
+  box-shadow:
+    0 12px 28px -4px rgba(59, 130, 246, 0.65),
+    0 3px 0 0 #1E3A8A,
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.35);
+}
+
+.btn-3d:active:not(:disabled) {
+  transform: translateY(1px);
+  box-shadow:
+    0 3px 10px -2px rgba(37, 99, 235, 0.4),
+    0 1px 0 0 #1E3A8A;
+}
+
+@keyframes floatSlow {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-8px) rotate(1deg); }
+}
+
+.animate-float {
+  animation: floatSlow 6s ease-in-out infinite;
+}
+
+/* Hide scrollbars on horizontal pill/tab containers while keeping scroll */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 .glass-input {

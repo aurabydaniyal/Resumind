@@ -21,6 +21,9 @@ import HeroVisual from '../components/HeroVisual';
 import ClassicTemplate from '../components/templates/ClassicTemplate';
 import ModernTemplate from '../components/templates/ModernTemplate';
 import MinimalTemplate from '../components/templates/MinimalTemplate';
+import ExecutiveTemplate from '../components/templates/ExecutiveTemplate';
+import CreativeTemplate from '../components/templates/CreativeTemplate';
+import { ACCENT_PRESETS, RESUME_TEMPLATES } from '../components/templates/themeUtils';
 
 // Realistic sample resume data for interactive live preview
 const SAMPLE_RESUME_DATA = {
@@ -100,6 +103,7 @@ const SAMPLE_RESUME_DATA = {
 export default function LandingPage() {
   const { isAuthenticated } = useAuth();
   const [activeTemplate, setActiveTemplate] = useState('modern');
+  const [activeColor, setActiveColor] = useState('#2563eb');
   const heroRef = useRef(null);
 
   useEffect(() => {
@@ -125,9 +129,11 @@ export default function LandingPage() {
   }, []);
 
   const renderActivePreview = () => {
-    const data = { ...SAMPLE_RESUME_DATA, selectedTemplate: activeTemplate };
+    const data = { ...SAMPLE_RESUME_DATA, selectedTemplate: activeTemplate, accentColor: activeColor };
     if (activeTemplate === 'classic') return <ClassicTemplate data={data} />;
     if (activeTemplate === 'minimal') return <MinimalTemplate data={data} />;
+    if (activeTemplate === 'executive') return <ExecutiveTemplate data={data} />;
+    if (activeTemplate === 'creative') return <CreativeTemplate data={data} />;
     return <ModernTemplate data={data} />;
   };
 
@@ -282,7 +288,7 @@ export default function LandingPage() {
               </li>
               <li className="flex items-start gap-2">
                 <CheckCircle2 className="w-4 h-4 text-electric-400 shrink-0 mt-0.5" />
-                <span>Three ATS-friendly templates (Classic, Modern, Minimal)</span>
+                <span>Five ATS-friendly templates with custom color themes</span>
               </li>
               <li className="flex items-start gap-2">
                 <CheckCircle2 className="w-4 h-4 text-electric-400 shrink-0 mt-0.5" />
@@ -304,43 +310,47 @@ export default function LandingPage() {
       <section id="templates" className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-t border-blue-500/10">
         <div className="text-center max-w-2xl mx-auto mb-10">
           <h2 className="text-xs font-bold text-electric-400 tracking-wider uppercase mb-2">Interactive Showcase</h2>
-          <p className="text-2xl sm:text-3xl font-bold text-white">Three Distinct ATS-Ready Templates</p>
+          <p className="text-2xl sm:text-3xl font-bold text-white">Five Distinct ATS-Ready Templates</p>
           <p className="text-slate-400 text-sm mt-3">
-            Switch between templates below. All styles use normalized career data and produce true selectable-text PDFs.
+            Switch between templates and personalize accent colors below. All styles produce true selectable-text vector PDFs.
           </p>
 
           {/* Template Switcher Tabs */}
-          <div className="inline-flex p-1 rounded-xl bg-space-850/90 border border-blue-500/20 mt-6 shadow-glass">
-            <button
-              onClick={() => setActiveTemplate('classic')}
-              className={`px-4 py-2 rounded-lg text-xs font-semibold transition-all ${
-                activeTemplate === 'classic'
-                  ? 'bg-electric-600 text-white shadow-glass-glow'
-                  : 'text-slate-400 hover:text-white'
-              }`}
-            >
-              Classic (ATS Standard)
-            </button>
-            <button
-              onClick={() => setActiveTemplate('modern')}
-              className={`px-4 py-2 rounded-lg text-xs font-semibold transition-all ${
-                activeTemplate === 'modern'
-                  ? 'bg-electric-600 text-white shadow-glass-glow'
-                  : 'text-slate-400 hover:text-white'
-              }`}
-            >
-              Modern (Cobalt Accent)
-            </button>
-            <button
-              onClick={() => setActiveTemplate('minimal')}
-              className={`px-4 py-2 rounded-lg text-xs font-semibold transition-all ${
-                activeTemplate === 'minimal'
-                  ? 'bg-electric-600 text-white shadow-glass-glow'
-                  : 'text-slate-400 hover:text-white'
-              }`}
-            >
-              Minimal (Clean Space)
-            </button>
+          <div className="flex flex-wrap items-center justify-center gap-1.5 p-1.5 rounded-2xl bg-space-850/90 border border-blue-500/20 mt-6 shadow-glass">
+            {RESUME_TEMPLATES.map((tmpl) => (
+              <button
+                key={tmpl.id}
+                onClick={() => setActiveTemplate(tmpl.id)}
+                className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
+                  activeTemplate === tmpl.id
+                    ? 'bg-electric-600 text-white shadow-glass-glow'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                <span>{tmpl.name}</span>
+                {tmpl.badge === 'New' && (
+                  <span className="text-[9px] uppercase px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 border border-amber-400/30">
+                    New
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
+
+          {/* Color Theme Swatches */}
+          <div className="flex flex-wrap items-center justify-center gap-2 mt-4">
+            <span className="text-xs text-slate-400 mr-1">Accent Color:</span>
+            {ACCENT_PRESETS.map((preset) => (
+              <button
+                key={preset.id}
+                onClick={() => setActiveColor(preset.hex)}
+                title={preset.name}
+                className={`w-6 h-6 rounded-full border-2 transition-transform ${
+                  activeColor === preset.hex ? 'border-white scale-125 shadow-lg' : 'border-white/20 hover:scale-110'
+                }`}
+                style={{ backgroundColor: preset.hex }}
+              />
+            ))}
           </div>
         </div>
 

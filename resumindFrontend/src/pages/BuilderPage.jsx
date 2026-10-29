@@ -5,14 +5,15 @@ import { downloadResumePdf } from '../components/pdf/ResumePdfDocument';
 import ClassicTemplate from '../components/templates/ClassicTemplate';
 import ModernTemplate from '../components/templates/ModernTemplate';
 import MinimalTemplate from '../components/templates/MinimalTemplate';
+import ExecutiveTemplate from '../components/templates/ExecutiveTemplate';
+import CreativeTemplate from '../components/templates/CreativeTemplate';
+import { ACCENT_PRESETS, RESUME_TEMPLATES } from '../components/templates/themeUtils';
 import {
   Save,
   Download,
   Sparkles,
   Plus,
   Trash2,
-  ChevronDown,
-  ChevronUp,
   User,
   Briefcase,
   GraduationCap,
@@ -25,13 +26,15 @@ import {
   Check,
   X,
   HelpCircle,
-  AlertCircle
+  AlertCircle,
+  Palette
 } from 'lucide-react';
 
 const INITIAL_RESUME_STATE = {
   title: 'My Professional Resume',
   targetRole: '',
   selectedTemplate: 'modern',
+  accentColor: '#2563eb',
   personalInfo: {
     fullName: '',
     email: '',
@@ -399,6 +402,8 @@ export default function BuilderPage() {
   const renderTemplatePreview = () => {
     if (resume.selectedTemplate === 'classic') return <ClassicTemplate data={resume} />;
     if (resume.selectedTemplate === 'minimal') return <MinimalTemplate data={resume} />;
+    if (resume.selectedTemplate === 'executive') return <ExecutiveTemplate data={resume} />;
+    if (resume.selectedTemplate === 'creative') return <CreativeTemplate data={resume} />;
     return <ModernTemplate data={resume} />;
   };
 
@@ -412,73 +417,127 @@ export default function BuilderPage() {
   }
 
   return (
-    <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+    <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 radial-bg">
       {/* Top Controls Toolbar */}
-      <div className="glass-panel p-4 rounded-2xl flex flex-wrap items-center justify-between gap-4 sticky top-20 z-40">
-        <div className="flex items-center gap-3">
-          <input
-            type="text"
-            value={resume.title}
-            onChange={(e) => setResume({ ...resume, title: e.target.value })}
-            className="bg-space-900/80 border border-blue-500/30 rounded-lg px-3 py-1.5 text-sm font-bold text-white focus:outline-none focus:border-electric-500"
-            placeholder="Resume Title"
-          />
-          <div className="flex items-center gap-1 bg-space-900/80 p-1 rounded-lg border border-blue-500/20 text-xs">
-            {['classic', 'modern', 'minimal'].map((tmpl) => (
-              <button
-                key={tmpl}
-                onClick={() => setResume({ ...resume, selectedTemplate: tmpl })}
-                className={`px-2.5 py-1 rounded capitalize font-medium transition-all ${
-                  resume.selectedTemplate === tmpl
-                    ? 'bg-electric-600 text-white shadow-sm'
-                    : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                {tmpl}
-              </button>
-            ))}
+      <div className="glass-panel p-4 sm:p-5 rounded-2xl flex flex-col gap-4 sticky top-16 z-30">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 flex-1">
+            <input
+              type="text"
+              value={resume.title}
+              onChange={(e) => setResume({ ...resume, title: e.target.value })}
+              className="w-full sm:w-64 bg-space-900/90 border border-blue-500/30 rounded-xl px-3.5 py-2 text-sm font-bold text-white focus:outline-none focus:border-electric-500"
+              placeholder="Resume Title"
+            />
+            <div className="flex items-center gap-1 bg-space-900/90 p-1 rounded-xl border border-blue-500/20 text-xs overflow-x-auto no-scrollbar">
+              {RESUME_TEMPLATES.map((tmpl) => (
+                <button
+                  key={tmpl.id}
+                  onClick={() => setResume({ ...resume, selectedTemplate: tmpl.id })}
+                  className={`px-3 py-1.5 rounded-lg font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 ${
+                    resume.selectedTemplate === tmpl.id
+                      ? 'bg-electric-600 text-white shadow-glass-glow'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  <span>{tmpl.name}</span>
+                  {tmpl.badge === 'New' && (
+                    <span className="text-[9px] uppercase px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 border border-amber-400/30">
+                      New
+                    </span>
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex flex-wrap items-center gap-2">
+            {/* Mobile Preview Toggle */}
+            <button
+              onClick={() => setPreviewMode(!previewMode)}
+              className="lg:hidden flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-200 bg-space-800 border border-blue-500/25"
+            >
+              {previewMode ? <Edit3 className="w-3.5 h-3.5 text-electric-400" /> : <Eye className="w-3.5 h-3.5 text-electric-400" />}
+              <span>{previewMode ? 'Edit Form' : 'Live Preview'}</span>
+            </button>
+
+            {/* AI Enhance Button */}
+            <button
+              onClick={() => setAiModalOpen(true)}
+              className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-electric-300 bg-electric-950/90 hover:bg-electric-900 border border-electric-500/35 transition-all shadow-glass-glow"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>AI Coach</span>
+            </button>
+
+            {/* Save Button */}
+            <button
+              onClick={handleSave}
+              disabled={saving}
+              className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold text-white bg-space-800 hover:bg-space-700 border border-blue-500/30 transition-all"
+            >
+              {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+              <span>{saving ? 'Saving...' : 'Save'}</span>
+            </button>
+
+            {/* PDF Download Button */}
+            <button
+              onClick={handleDownloadPdf}
+              disabled={downloading}
+              className="w-full sm:w-auto flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold text-white btn-3d"
+            >
+              {downloading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
+              <span>Export PDF</span>
+            </button>
           </div>
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex items-center gap-2">
-          {/* Mobile Preview Toggle */}
-          <button
-            onClick={() => setPreviewMode(!previewMode)}
-            className="lg:hidden flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-300 bg-space-800 border border-blue-500/20"
-          >
-            {previewMode ? <Edit3 className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-            <span>{previewMode ? 'Edit' : 'Preview'}</span>
-          </button>
+        {/* Accent Color Customizer Bar */}
+        <div className="pt-3 border-t border-blue-500/15 flex flex-wrap items-center justify-between gap-3 text-xs">
+          <div className="flex items-center gap-2 text-slate-300 font-semibold">
+            <Palette className="w-4 h-4 text-electric-400" />
+            <span>Template Color Theme:</span>
+          </div>
 
-          {/* AI Enhance Button */}
-          <button
-            onClick={() => setAiModalOpen(true)}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-electric-400 bg-electric-950/80 hover:bg-electric-900 border border-electric-500/30 transition-all shadow-glass-glow"
-          >
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>AI Coach</span>
-          </button>
+          <div className="flex flex-wrap items-center gap-2">
+            {ACCENT_PRESETS.map((preset) => {
+              const isSelected = (resume.accentColor || '#2563eb').toLowerCase() === preset.hex.toLowerCase();
+              return (
+                <button
+                  key={preset.id}
+                  type="button"
+                  onClick={() => setResume({ ...resume, accentColor: preset.hex })}
+                  title={preset.name}
+                  className={`group flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-[11px] font-medium transition-all ${
+                    isSelected
+                      ? 'bg-space-800 text-white border-white/60 shadow-sm scale-105'
+                      : 'bg-space-900/70 text-slate-400 border-blue-500/15 hover:text-white'
+                  }`}
+                >
+                  <span
+                    className="w-3.5 h-3.5 rounded-full shrink-0 border border-white/25"
+                    style={{ backgroundColor: preset.hex }}
+                  />
+                  <span className="hidden sm:inline">{preset.name.split(' ')[1] || preset.name}</span>
+                </button>
+              );
+            })}
 
-          {/* Save Button */}
-          <button
-            onClick={handleSave}
-            disabled={saving}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold text-white bg-space-800 hover:bg-space-700 border border-blue-500/30 transition-all"
-          >
-            {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
-            <span>{saving ? 'Saving...' : 'Save'}</span>
-          </button>
-
-          {/* PDF Download Button */}
-          <button
-            onClick={handleDownloadPdf}
-            disabled={downloading}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold text-white bg-electric-600 hover:bg-electric-500 shadow-blue-glow transition-all"
-          >
-            {downloading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
-            <span>Export PDF</span>
-          </button>
+            {/* Custom Color Input */}
+            <label
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-space-900 border border-blue-500/25 text-[11px] text-slate-300 hover:text-white cursor-pointer"
+              title="Choose any custom color"
+            >
+              <input
+                type="color"
+                value={resume.accentColor || '#2563eb'}
+                onChange={(e) => setResume({ ...resume, accentColor: e.target.value })}
+                className="w-4 h-4 rounded cursor-pointer bg-transparent border-0 p-0"
+              />
+              <span>Custom</span>
+            </label>
+          </div>
         </div>
       </div>
 

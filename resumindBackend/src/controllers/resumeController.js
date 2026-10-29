@@ -26,7 +26,7 @@ async function listResumes(req, res, next) {
   try {
     await connectDB();
     const resumes = await Resume.find({ userId: req.user.id })
-      .select('title targetRole selectedTemplate updatedAt createdAt')
+      .select('title targetRole selectedTemplate accentColor updatedAt createdAt')
       .sort({ updatedAt: -1 });
 
     res.status(200).json({

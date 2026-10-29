@@ -68,12 +68,33 @@ function makeRequest(app, method, url, body = null, headers = {}) {
   });
 }
 
-test('GET /api/v1/health returns 200 and healthy status', async () => {
+test('GET /api/v1/health returns 200 and healthy status without leaking internal diagnostics', async () => {
   const res = await makeRequest(app, 'GET', '/api/v1/health');
   assert.equal(res.status, 200);
   assert.equal(res.body.status, 'ok');
   assert.equal(res.body.service, 'Resumind AI Backend');
   assert.ok(res.body.timestamp);
+  assert.equal(res.body.database, undefined);
+  assert.equal(res.body.aiProvider, undefined);
+});
+
+test('resumeCreateSchema validates all 5 templates and custom hex accentColor', () => {
+  const { resumeCreateSchema } = require('../src/validators/resumeValidators');
+  const parsed = resumeCreateSchema.parse({
+    title: 'Executive Resume',
+    selectedTemplate: 'executive',
+    accentColor: '#7c3aed'
+  });
+  assert.equal(parsed.selectedTemplate, 'executive');
+  assert.equal(parsed.accentColor, '#7c3aed');
+
+  const creativeParsed = resumeCreateSchema.parse({
+    title: 'Creative Resume',
+    selectedTemplate: 'creative',
+    accentColor: '#059669'
+  });
+  assert.equal(creativeParsed.selectedTemplate, 'creative');
+  assert.equal(creativeParsed.accentColor, '#059669');
 });
 
 test('POST /api/v1/auth/register fails with 400 on invalid email or short password', async () => {

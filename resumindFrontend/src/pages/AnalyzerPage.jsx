@@ -249,7 +249,7 @@ export default function AnalyzerPage() {
           <button
             type="submit"
             disabled={analyzing || extracting || !resumeText.trim()}
-            className="w-full sm:w-auto min-w-[220px] flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl font-semibold text-white bg-electric-600 hover:bg-electric-500 shadow-blue-glow disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            className="w-full sm:w-auto min-w-[220px] flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl font-semibold text-white btn-3d disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {analyzing ? (
               <>

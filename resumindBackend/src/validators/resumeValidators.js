@@ -57,7 +57,8 @@ const certificationSchema = z.object({
 const resumeCreateSchema = z.object({
   title: z.string().trim().min(1, 'Title is required').max(120, 'Title cannot exceed 120 characters').default('My Professional Resume'),
   targetRole: z.string().trim().max(100).optional().default(''),
-  selectedTemplate: z.enum(['classic', 'modern', 'minimal']).optional().default('classic'),
+  selectedTemplate: z.enum(['classic', 'modern', 'minimal', 'executive', 'creative']).optional().default('classic'),
+  accentColor: z.string().trim().regex(/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/, 'Invalid hex color').optional().default('#2563eb'),
   personalInfo: personalInfoSchema,
   summary: z.string().trim().max(4000).optional().default(''),
   skills: z.array(skillGroupSchema).optional().default([]),

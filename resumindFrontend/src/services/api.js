@@ -72,7 +72,7 @@ async function request(endpoint, options = {}) {
     return data;
   } catch (err) {
     if (err.name === 'TypeError' && err.message.includes('Failed to fetch')) {
-      const connectionError = new Error('Cannot connect to Resumind backend API. Is the server running?');
+      const connectionError = new Error('Unable to reach the service right now. Please check your internet connection and try again.');
       connectionError.status = 503;
       throw connectionError;
     }

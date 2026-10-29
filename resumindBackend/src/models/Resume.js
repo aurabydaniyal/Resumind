@@ -95,8 +95,14 @@ const resumeSchema = new mongoose.Schema(
     },
     selectedTemplate: {
       type: String,
-      enum: ['classic', 'modern', 'minimal'],
+      enum: ['classic', 'modern', 'minimal', 'executive', 'creative'],
       default: 'classic'
+    },
+    accentColor: {
+      type: String,
+      trim: true,
+      maxlength: [20, 'Accent color cannot exceed 20 characters'],
+      default: '#2563eb'
     },
     personalInfo: {
       type: personalInfoSchema,

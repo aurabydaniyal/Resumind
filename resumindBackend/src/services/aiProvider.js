@@ -142,8 +142,10 @@ class AIProviderService {
 
   async callGroq(messages, jsonMode = true) {
     if (!this.isConfigured()) {
+      // Log the technical reason server-side only; never reveal configuration details to end users
+      console.error('[AI Provider] GROQ_API_KEY is not configured.');
       const err = new Error(
-        'AI provider is not configured. Please add GROQ_API_KEY to resumindBackend/.env or your Vercel Environment Variables.'
+        'The AI service is temporarily unavailable. Please try again in a few minutes.'
       );
       err.statusCode = 503;
       err.code = 'AI_PROVIDER_NOT_CONFIGURED';
@@ -188,8 +190,10 @@ class AIProviderService {
 
         // If invalid key
         if (status === 401) {
-          const err = new Error('Invalid GROQ_API_KEY. Please check your API key in .env.');
-          err.statusCode = 401;
+          // 503 (not 401) so the client never confuses this with an expired user session
+          console.error('[AI Provider] Groq rejected the configured API key (401).');
+          const err = new Error('The AI service is temporarily unavailable. Please try again in a few minutes.');
+          err.statusCode = 503;
           throw err;
         }
 
@@ -201,7 +205,8 @@ class AIProviderService {
         }
 
         // Other API error
-        const err = new Error(`Groq API error (${status}): ${errorText.slice(0, 300)}`);
+        console.error(`[AI Provider] Groq API error (${status}): ${errorText.slice(0, 300)}`);
+        const err = new Error('The AI service could not process this request right now. Please try again shortly.');
         err.statusCode = 502;
         throw err;
       } catch (err) {
@@ -217,7 +222,12 @@ class AIProviderService {
       }
     }
 
-    throw lastError || new Error('All configured AI models failed to respond.');
+    if (lastError) {
+      console.error('[AI Provider] All candidate models failed:', lastError.message);
+    }
+    const finalErr = new Error('The AI service is temporarily unavailable. Please try again in a few minutes.');
+    finalErr.statusCode = 503;
+    throw finalErr;
   }
 
   async analyzeResume({ resumeText, targetRole, jobDescription }) {

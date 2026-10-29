@@ -121,9 +121,16 @@ export default function SavedResumesPage() {
               <div>
                 <div className="flex items-start justify-between gap-2 mb-2">
                   <h3 className="font-bold text-white text-base line-clamp-1">{item.title}</h3>
-                  <span className="text-[10px] font-semibold uppercase px-2 py-0.5 rounded bg-space-850 text-electric-400 border border-blue-500/20">
-                    {item.selectedTemplate || 'classic'}
-                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <span
+                      className="w-2.5 h-2.5 rounded-full border border-white/30"
+                      style={{ backgroundColor: item.accentColor || '#2563eb' }}
+                      title="Accent Color"
+                    />
+                    <span className="text-[10px] font-semibold uppercase px-2 py-0.5 rounded bg-space-850 text-electric-400 border border-blue-500/20">
+                      {item.selectedTemplate || 'classic'}
+                    </span>
+                  </div>
                 </div>
                 <p className="text-xs text-slate-400 mb-4">
                   {item.targetRole ? `Target Role: ${item.targetRole}` : 'General Purpose Resume'}
