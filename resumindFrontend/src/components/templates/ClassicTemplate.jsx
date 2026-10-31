@@ -16,21 +16,21 @@ export default function ClassicTemplate({ data }) {
   const palette = getThemePalette(accentColor);
 
   return (
-    <div className="bg-white text-slate-900 font-sans p-6 sm:p-10 md:p-12 shadow-2xl rounded-sm max-w-4xl mx-auto text-sm leading-relaxed border border-slate-200">
+    <div className="bg-white text-slate-900 font-sans p-10 md:p-12 shadow-2xl rounded-sm max-w-4xl mx-auto text-sm leading-relaxed border border-slate-200">
       {/* Header */}
       <header
         className="pb-4 mb-6 text-center"
         style={{ borderBottom: `2.5px solid ${palette.primary}` }}
       >
         <h1
-          className="text-2xl md:text-3xl font-bold uppercase tracking-wider mb-1.5"
+          className="text-3xl font-bold uppercase tracking-wider mb-1.5"
           style={{ color: palette.darker }}
         >
           {personalInfo.fullName || 'Daniyal'}
         </h1>
         {data.targetRole && (
           <p
-            className="text-xs sm:text-sm font-bold uppercase tracking-widest mb-3"
+            className="text-sm font-bold uppercase tracking-widest mb-3"
             style={{ color: palette.primary }}
           >
             {data.targetRole}
@@ -67,7 +67,7 @@ export default function ClassicTemplate({ data }) {
           >
             Professional Summary
           </h2>
-          <p className="text-slate-800 text-xs md:text-sm text-justify leading-relaxed">
+          <p className="text-slate-800 text-sm text-justify leading-relaxed">
             {summary}
           </p>
         </section>
@@ -115,7 +115,7 @@ export default function ClassicTemplate({ data }) {
           <div className="space-y-4">
             {experience.map((exp, idx) => (
               <div key={idx} className="text-xs">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between font-bold text-slate-900">
+                <div className="flex flex-row items-center justify-between font-bold text-slate-900">
                   <span className="text-sm font-bold">{exp.role || 'Job Title'}</span>
                   <span className="font-semibold text-xs" style={{ color: palette.primary }}>
                     {exp.startDate} - {exp.current ? 'Present' : exp.endDate}
@@ -153,11 +153,11 @@ export default function ClassicTemplate({ data }) {
           <div className="space-y-3">
             {projects.map((proj, idx) => (
               <div key={idx} className="text-xs">
-                <div className="flex flex-wrap items-center justify-between gap-2 font-bold text-slate-900">
+                <div className="flex items-center justify-between gap-2 font-bold text-slate-900">
                   <span className="text-xs font-bold">{proj.name}</span>
                   {proj.link && (
                     <span
-                      className="font-normal underline break-all"
+                      className="font-normal underline"
                       style={{ color: palette.primary }}
                     >
                       {proj.link}
@@ -203,7 +203,7 @@ export default function ClassicTemplate({ data }) {
           <div className="space-y-2.5">
             {education.map((edu, idx) => (
               <div key={idx} className="text-xs">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between font-bold text-slate-900">
+                <div className="flex flex-row items-center justify-between font-bold text-slate-900">
                   <span>
                     {edu.degree} {edu.fieldOfStudy ? `in ${edu.fieldOfStudy}` : ''}
                   </span>

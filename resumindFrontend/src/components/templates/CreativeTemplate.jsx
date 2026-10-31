@@ -24,10 +24,10 @@ export default function CreativeTemplate({ data }) {
 
   return (
     <div className="bg-white text-slate-900 font-sans shadow-2xl rounded-sm max-w-4xl mx-auto text-sm leading-relaxed border border-slate-200 overflow-hidden">
-      <div className="grid grid-cols-1 md:grid-cols-12 min-h-[700px]">
+      <div className="grid grid-cols-12 min-h-[1120px]">
         {/* Left Studio Sidebar */}
         <aside
-          className="md:col-span-4 p-6 sm:p-8 space-y-6 border-b md:border-b-0 md:border-r"
+          className="col-span-4 p-8 space-y-6 border-r"
           style={{
             backgroundColor: palette.lightBg,
             borderColor: palette.borderLight
@@ -42,7 +42,7 @@ export default function CreativeTemplate({ data }) {
               {initials}
             </div>
             <div>
-              <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight leading-tight">
+              <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight leading-tight">
                 {personalInfo.fullName || 'Daniyal'}
               </h1>
               {data.targetRole && (
@@ -171,7 +171,7 @@ export default function CreativeTemplate({ data }) {
         </aside>
 
         {/* Right Main Content Column */}
-        <main className="md:col-span-8 p-6 sm:p-8 space-y-6">
+        <main className="col-span-8 p-8 space-y-6">
           {/* Summary */}
           {summary && (
             <section>
@@ -182,7 +182,7 @@ export default function CreativeTemplate({ data }) {
                 <span>About Me</span>
                 <div className="flex-1 h-[1.5px]" style={{ backgroundColor: palette.borderLight }} />
               </h2>
-              <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">{summary}</p>
+              <p className="text-sm text-slate-700 leading-relaxed">{summary}</p>
             </section>
           )}
 
@@ -208,7 +208,7 @@ export default function CreativeTemplate({ data }) {
                       className="w-2.5 h-2.5 rounded-full absolute -left-[6px] top-1"
                       style={{ backgroundColor: palette.primary }}
                     />
-                    <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between">
+                    <div className="flex flex-row items-baseline justify-between">
                       <span className="text-sm font-extrabold text-slate-900">
                         {exp.role || 'Job Title'}
                       </span>
@@ -256,11 +256,11 @@ export default function CreativeTemplate({ data }) {
                       borderColor: palette.borderLight
                     }}
                   >
-                    <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div className="flex items-center justify-between gap-2">
                       <span className="font-extrabold text-slate-900">{proj.name}</span>
                       {proj.link && (
                         <span
-                          className="text-[11px] font-semibold underline break-all"
+                          className="text-[11px] font-semibold underline"
                           style={{ color: palette.primary }}
                         >
                           {proj.link}
@@ -287,4 +287,3 @@ export default function CreativeTemplate({ data }) {
     </div>
   );
 }
-

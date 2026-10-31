@@ -16,15 +16,15 @@ export default function ModernTemplate({ data }) {
   const palette = getThemePalette(accentColor);
 
   return (
-    <div className="bg-white text-slate-900 font-sans p-6 sm:p-10 md:p-12 shadow-2xl rounded-sm max-w-4xl mx-auto text-sm leading-relaxed border border-slate-200">
+    <div className="bg-white text-slate-900 font-sans p-10 md:p-12 shadow-2xl rounded-sm max-w-4xl mx-auto text-sm leading-relaxed border border-slate-200">
       {/* Header with dynamic modern accent */}
       <header
         className="pb-5 mb-6"
         style={{ borderBottom: `2.5px solid ${palette.primary}` }}
       >
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-2">
+        <div className="flex flex-row items-end justify-between gap-4">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+            <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
               {personalInfo.fullName || 'Qasim Ali'}
             </h1>
             <p
@@ -34,12 +34,12 @@ export default function ModernTemplate({ data }) {
               {data.targetRole || 'Professional Role'}
             </p>
           </div>
-          <div className="text-xs text-slate-600 text-left md:text-right space-y-0.5">
+          <div className="text-xs text-slate-600 text-right space-y-0.5">
             {personalInfo.email && <div>{personalInfo.email}</div>}
             {personalInfo.phone && <div>{personalInfo.phone}</div>}
             {personalInfo.location && <div>{personalInfo.location}</div>}
             {(personalInfo.linkedin || personalInfo.github || personalInfo.website) && (
-              <div className="font-medium break-all" style={{ color: palette.primary }}>
+              <div className="font-medium" style={{ color: palette.primary }}>
                 {[personalInfo.linkedin, personalInfo.github, personalInfo.website]
                   .filter(Boolean)
                   .join(' • ')}
@@ -59,7 +59,7 @@ export default function ModernTemplate({ data }) {
             <span>Executive Summary</span>
             <div className="flex-1 h-[1px]" style={{ backgroundColor: palette.borderLight }} />
           </h2>
-          <p className="text-xs md:text-sm text-slate-700 leading-relaxed">{summary}</p>
+          <p className="text-sm text-slate-700 leading-relaxed">{summary}</p>
         </section>
       )}
 
@@ -73,7 +73,7 @@ export default function ModernTemplate({ data }) {
             <span>Core Competencies & Skills</span>
             <div className="flex-1 h-[1px]" style={{ backgroundColor: palette.borderLight }} />
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+          <div className="grid grid-cols-2 gap-2 text-xs">
             {skills.map((group, idx) => (
               <div
                 key={idx}
@@ -110,7 +110,7 @@ export default function ModernTemplate({ data }) {
                 className="text-xs pl-3.5 py-0.5"
                 style={{ borderLeft: `2.5px solid ${palette.borderLight}` }}
               >
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between font-bold text-slate-900">
+                <div className="flex flex-row items-center justify-between font-bold text-slate-900">
                   <span className="text-sm font-bold text-slate-900">{exp.role || 'Job Title'}</span>
                   <span
                     className="font-semibold text-xs"
@@ -156,11 +156,11 @@ export default function ModernTemplate({ data }) {
                   borderColor: palette.borderLight
                 }}
               >
-                <div className="flex flex-wrap items-center justify-between gap-2 font-bold text-slate-900">
+                <div className="flex items-center justify-between gap-2 font-bold text-slate-900">
                   <span className="text-xs font-bold text-slate-900">{proj.name}</span>
                   {proj.link && (
                     <span
-                      className="text-[11px] underline break-all"
+                      className="text-[11px] underline"
                       style={{ color: palette.primary }}
                     >
                       {proj.link}
@@ -209,7 +209,7 @@ export default function ModernTemplate({ data }) {
           </h2>
           <div className="space-y-2">
             {education.map((edu, idx) => (
-              <div key={idx} className="text-xs flex flex-col sm:flex-row sm:items-center sm:justify-between">
+              <div key={idx} className="text-xs flex flex-row items-center justify-between">
                 <div>
                   <span className="font-bold text-slate-900">{edu.institution}</span>
                   <div className="text-slate-600">

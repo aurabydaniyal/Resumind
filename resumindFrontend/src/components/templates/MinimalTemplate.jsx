@@ -16,7 +16,7 @@ export default function MinimalTemplate({ data }) {
   const palette = getThemePalette(accentColor);
 
   return (
-    <div className="bg-white text-slate-800 font-sans p-6 sm:p-10 md:p-12 shadow-2xl rounded-sm max-w-4xl mx-auto text-sm leading-relaxed border border-slate-200">
+    <div className="bg-white text-slate-800 font-sans p-10 md:p-12 shadow-2xl rounded-sm max-w-4xl mx-auto text-sm leading-relaxed border border-slate-200">
       {/* Minimal Header */}
       <header className="mb-8">
         <div className="flex items-center gap-3">
@@ -25,7 +25,7 @@ export default function MinimalTemplate({ data }) {
             style={{ backgroundColor: palette.primary }}
           />
           <div>
-            <h1 className="text-2xl sm:text-3xl font-light text-slate-900 tracking-tight">
+            <h1 className="text-3xl font-light text-slate-900 tracking-tight">
               {personalInfo.fullName || 'Zunair Majeed'}
             </h1>
             {data.targetRole && (
@@ -63,7 +63,7 @@ export default function MinimalTemplate({ data }) {
       {/* Summary */}
       {summary && (
         <section className="mb-7">
-          <p className="text-xs md:text-sm text-slate-600 leading-relaxed font-normal">
+          <p className="text-sm text-slate-600 leading-relaxed font-normal">
             {summary}
           </p>
         </section>
@@ -81,7 +81,7 @@ export default function MinimalTemplate({ data }) {
           <div className="space-y-5">
             {experience.map((exp, idx) => (
               <div key={idx} className="text-xs">
-                <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between mb-1">
+                <div className="flex flex-row items-baseline justify-between mb-1">
                   <div>
                     <span className="font-semibold text-slate-900">{exp.role}</span>
                     <span className="text-slate-400 mx-1.5">—</span>
@@ -121,10 +121,10 @@ export default function MinimalTemplate({ data }) {
           <div className="space-y-4">
             {projects.map((proj, idx) => (
               <div key={idx} className="text-xs">
-                <div className="flex flex-wrap items-baseline justify-between gap-2">
+                <div className="flex items-baseline justify-between gap-2">
                   <span className="font-semibold text-slate-900">{proj.name}</span>
                   {proj.link && (
-                    <span className="text-[11px] break-all" style={{ color: palette.primary }}>
+                    <span className="text-[11px]" style={{ color: palette.primary }}>
                       {proj.link}
                     </span>
                   )}
@@ -171,7 +171,7 @@ export default function MinimalTemplate({ data }) {
       )}
 
       {/* Education & Certs */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-2 gap-6">
         {education.length > 0 && (
           <section>
             <h2

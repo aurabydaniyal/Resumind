@@ -8,11 +8,7 @@ import {
   CheckCircle2,
   ShieldAlert,
   ArrowRight,
-  Download,
-  Target,
-  BarChart,
   HelpCircle,
-  Cpu,
   LayoutDashboard,
   UserPlus
 } from 'lucide-react';
@@ -23,82 +19,10 @@ import ModernTemplate from '../components/templates/ModernTemplate';
 import MinimalTemplate from '../components/templates/MinimalTemplate';
 import ExecutiveTemplate from '../components/templates/ExecutiveTemplate';
 import CreativeTemplate from '../components/templates/CreativeTemplate';
-import { ACCENT_PRESETS, RESUME_TEMPLATES } from '../components/templates/themeUtils';
-
-// Realistic sample resume data for interactive live preview
-const SAMPLE_RESUME_DATA = {
-  title: 'Senior Software Engineer Resume',
-  targetRole: 'Senior Full Stack Engineer',
-  selectedTemplate: 'modern',
-  personalInfo: {
-    fullName: 'Daniyal',
-    email: 'daniyal@example.com',
-    phone: '+92 (300) 123-4567',
-    location: 'Lahore, Pakistan',
-    linkedin: 'linkedin.com/in/m-daniyal',
-    github: 'github.com/m-daniyal',
-    website: 'https://m-daniyal.vercel.app'
-  },
-  summary:
-    'Full-stack software engineer with 5+ years of experience architecting resilient cloud services and high-performance web applications using React, Node.js, and distributed databases. Led performance initiatives that reduced API latency by 42% across 3M monthly active users.',
-  skills: [
-    { category: 'Languages & Frameworks', items: ['TypeScript', 'JavaScript (ESNext)', 'React', 'Node.js', 'Express', 'Next.js'] },
-    { category: 'Cloud & Infrastructure', items: ['MongoDB Atlas', 'PostgreSQL', 'Docker', 'AWS (S3, Lambda)', 'Redis'] },
-    { category: 'Methodologies & Practices', items: ['RESTful APIs', 'Microservices', 'CI/CD Pipelines', 'Agile/Scrum', 'Test-Driven Development'] }
-  ],
-  experience: [
-    {
-      company: 'TechPulse Solutions',
-      role: 'Senior Full Stack Engineer',
-      location: 'Lahore, Pakistan',
-      startDate: '2022',
-      endDate: 'Present',
-      current: true,
-      bullets: [
-        'Architected real-time collaboration pipeline processing 15,000 events/sec with 99.98% uptime.',
-        'Mentored 5 junior engineers and established automated code linting and unit testing coverage standards (88%).',
-        'Refactored legacy monolith into Node.js serverless functions, decreasing infrastructure monthly billing by 35%.'
-      ]
-    },
-    {
-      company: 'CodeCraft Studio',
-      role: 'Full Stack Developer',
-      location: 'Lahore, Pakistan',
-      startDate: '2020',
-      endDate: '2022',
-      current: false,
-      bullets: [
-        'Built responsive customer dashboard in React and Tailwind CSS serving 120,000 enterprise accounts.',
-        'Engineered secure JWT authentication layer and role-based access control protecting PII records.',
-        'Reduced bundle size by 30% through dynamic code splitting and tree-shaking optimizations.'
-      ]
-    }
-  ],
-  projects: [
-    {
-      name: 'Resumind AI Platform',
-      link: 'm-daniyal.vercel.app',
-      description: 'AI-assisted resume analysis platform with client-side text parsing and structured rubric evaluation.',
-      technologies: ['React', 'Node.js', 'Express', 'Mongoose', 'AI Engine'],
-      bullets: [
-        'Implemented client-side PDF/DOCX tokenization avoiding server storage of raw files.',
-        'Engineered automated rubric scoring with strict schema validation.'
-      ]
-    }
-  ],
-  education: [
-    {
-      institution: 'FAST National University',
-      degree: 'B.S. Computer Science',
-      startDate: '2015',
-      endDate: '2019',
-      gpa: '3.82'
-    }
-  ],
-  certifications: [
-    { name: 'AWS Certified Solutions Architect', issuer: 'Amazon Web Services', date: '2023' }
-  ]
-};
+import A4ResumeViewport from '../components/templates/A4ResumeViewport';
+import ColorPickerPopover from '../components/templates/ColorPickerPopover';
+import { RESUME_TEMPLATES } from '../components/templates/themeUtils';
+import { DEMO_RESUME_DATA } from '../components/templates/demoResumeData';
 
 export default function LandingPage() {
   const { isAuthenticated } = useAuth();
@@ -129,7 +53,11 @@ export default function LandingPage() {
   }, []);
 
   const renderActivePreview = () => {
-    const data = { ...SAMPLE_RESUME_DATA, selectedTemplate: activeTemplate, accentColor: activeColor };
+    const data = {
+      ...DEMO_RESUME_DATA,
+      selectedTemplate: activeTemplate,
+      accentColor: activeColor
+    };
     if (activeTemplate === 'classic') return <ClassicTemplate data={data} />;
     if (activeTemplate === 'minimal') return <MinimalTemplate data={data} />;
     if (activeTemplate === 'executive') return <ExecutiveTemplate data={data} />;
@@ -260,7 +188,7 @@ export default function LandingPage() {
               </li>
             </ul>
             <Link
-              to={isAuthenticated ? "/analyzer" : "/register"}
+              to={isAuthenticated ? '/analyzer' : '/register'}
               className="inline-flex items-center gap-2 text-xs font-semibold text-electric-400 hover:text-white transition-colors"
             >
               <span>{isAuthenticated ? 'Test Your Resume' : 'Sign Up to Test Resume'}</span>
@@ -296,7 +224,7 @@ export default function LandingPage() {
               </li>
             </ul>
             <Link
-              to={isAuthenticated ? "/builder" : "/register"}
+              to={isAuthenticated ? '/builder' : '/register'}
               className="inline-flex items-center gap-2 text-xs font-semibold text-electric-400 hover:text-white transition-colors"
             >
               <span>{isAuthenticated ? 'Launch Builder' : 'Sign Up to Build Resume'}</span>
@@ -306,72 +234,64 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Interactive Template Preview Section */}
+      {/* Interactive A4 Template Preview Section */}
       <section id="templates" className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-t border-blue-500/10">
-        <div className="text-center max-w-2xl mx-auto mb-10">
-          <h2 className="text-xs font-bold text-electric-400 tracking-wider uppercase mb-2">Interactive Showcase</h2>
+        <div className="text-center max-w-2xl mx-auto mb-8">
+          <h2 className="text-xs font-bold text-electric-400 tracking-wider uppercase mb-2">Interactive A4 Showcase</h2>
           <p className="text-2xl sm:text-3xl font-bold text-white">Five Distinct ATS-Ready Templates</p>
-          <p className="text-slate-400 text-sm mt-3">
-            Switch between templates and personalize accent colors below. All styles produce true selectable-text vector PDFs.
+          <p className="text-slate-400 text-xs sm:text-sm mt-2">
+            Switch between templates and choose your preferred accent color. Displayed in true A4 paper proportions across both desktop and mobile.
           </p>
 
-          {/* Template Switcher Tabs */}
-          <div className="flex flex-wrap items-center justify-center gap-1.5 p-1.5 rounded-2xl bg-space-850/90 border border-blue-500/20 mt-6 shadow-glass">
-            {RESUME_TEMPLATES.map((tmpl) => (
-              <button
-                key={tmpl.id}
-                onClick={() => setActiveTemplate(tmpl.id)}
-                className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
-                  activeTemplate === tmpl.id
-                    ? 'bg-electric-600 text-white shadow-glass-glow'
-                    : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                <span>{tmpl.name}</span>
-                {tmpl.badge === 'New' && (
-                  <span className="text-[9px] uppercase px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 border border-amber-400/30">
-                    New
-                  </span>
-                )}
-              </button>
-            ))}
-          </div>
+          {/* Single-Line Template Switcher + Popup Color Button */}
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
+            <div className="flex items-center gap-1 p-1 rounded-xl bg-space-850/90 border border-blue-500/20 shadow-glass overflow-x-auto no-scrollbar max-w-full">
+              {RESUME_TEMPLATES.map((tmpl) => (
+                <button
+                  key={tmpl.id}
+                  onClick={() => setActiveTemplate(tmpl.id)}
+                  className={`h-8 px-3 rounded-lg text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 ${
+                    activeTemplate === tmpl.id
+                      ? 'bg-electric-600 text-white shadow-glass-glow'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  <span>{tmpl.name}</span>
+                  {tmpl.badge === 'New' && (
+                    <span className="text-[8px] uppercase px-1 rounded bg-amber-500/20 text-amber-300 border border-amber-400/30">
+                      New
+                    </span>
+                  )}
+                </button>
+              ))}
+            </div>
 
-          {/* Color Theme Swatches */}
-          <div className="flex flex-wrap items-center justify-center gap-2 mt-4">
-            <span className="text-xs text-slate-400 mr-1">Accent Color:</span>
-            {ACCENT_PRESETS.map((preset) => (
-              <button
-                key={preset.id}
-                onClick={() => setActiveColor(preset.hex)}
-                title={preset.name}
-                className={`w-6 h-6 rounded-full border-2 transition-transform ${
-                  activeColor === preset.hex ? 'border-white scale-125 shadow-lg' : 'border-white/20 hover:scale-110'
-                }`}
-                style={{ backgroundColor: preset.hex }}
-              />
-            ))}
+            <ColorPickerPopover
+              value={activeColor}
+              onChange={setActiveColor}
+              buttonClassName="h-10 px-3.5 rounded-xl text-xs font-semibold text-slate-200 bg-space-850/90 hover:bg-space-800 border border-blue-500/25 flex items-center justify-center gap-1.5 shadow-glass transition-all whitespace-nowrap"
+            />
           </div>
         </div>
 
-        {/* Live Preview Container */}
-        <div className="glass-panel p-4 md:p-8 rounded-2xl max-w-5xl mx-auto overflow-hidden">
+        {/* Full A4 Sheet Container without internal scrollbars */}
+        <div className="glass-panel p-3 sm:p-6 md:p-8 rounded-2xl max-w-4xl mx-auto">
           <div className="mb-4 flex items-center justify-between text-xs text-slate-400 border-b border-space-800 pb-3">
             <span className="flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-emerald-400" />
-              Live Interactive Preview: <strong className="text-white capitalize">{activeTemplate}</strong> Template
+              <span>A4 Paper Preview:</span>
+              <strong className="text-white capitalize">{activeTemplate}</strong>
             </span>
             <Link
-              to={isAuthenticated ? "/builder" : "/register"}
-              className="text-electric-400 hover:text-white font-medium flex items-center gap-1"
+              to={isAuthenticated ? '/builder' : '/register'}
+              className="text-electric-400 hover:text-white font-semibold flex items-center gap-1"
             >
-              <span>{isAuthenticated ? 'Edit in Builder' : 'Sign Up to Customize'}</span>
+              <span>{isAuthenticated ? 'Edit in Builder' : 'Customize Yours'}</span>
               <ArrowRight className="w-3 h-3" />
             </Link>
           </div>
-          <div className="max-h-[600px] overflow-y-auto rounded-lg border border-slate-700/50 shadow-inner">
-            {renderActivePreview()}
-          </div>
+
+          <A4ResumeViewport>{renderActivePreview()}</A4ResumeViewport>
         </div>
       </section>
 

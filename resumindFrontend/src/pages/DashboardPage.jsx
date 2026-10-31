@@ -3,6 +3,15 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 import { downloadResumePdf } from '../components/pdf/ResumePdfDocument';
+import ClassicTemplate from '../components/templates/ClassicTemplate';
+import ModernTemplate from '../components/templates/ModernTemplate';
+import MinimalTemplate from '../components/templates/MinimalTemplate';
+import ExecutiveTemplate from '../components/templates/ExecutiveTemplate';
+import CreativeTemplate from '../components/templates/CreativeTemplate';
+import A4ResumeViewport from '../components/templates/A4ResumeViewport';
+import ColorPickerPopover from '../components/templates/ColorPickerPopover';
+import { RESUME_TEMPLATES } from '../components/templates/themeUtils';
+import { DEMO_RESUME_DATA } from '../components/templates/demoResumeData';
 import {
   Sparkles,
   FileSearch,
@@ -13,9 +22,8 @@ import {
   Download,
   Trash2,
   FileText,
-  CheckCircle2,
-  AlertTriangle,
-  Loader2
+  Loader2,
+  Eye
 } from 'lucide-react';
 
 export default function DashboardPage() {
@@ -24,6 +32,10 @@ export default function DashboardPage() {
   const [analyses, setAnalyses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [downloadingId, setDownloadingId] = useState(null);
+
+  // Interactive A4 Template Demo state inside Dashboard
+  const [demoTemplate, setDemoTemplate] = useState('modern');
+  const [demoColor, setDemoColor] = useState('#2563eb');
 
   useEffect(() => {
     async function fetchDashboardData() {
@@ -73,12 +85,26 @@ export default function DashboardPage() {
     }
   };
 
-  const avgScore = analyses.length > 0
-    ? Math.round(analyses.reduce((acc, curr) => acc + (curr.overallScore || 0), 0) / analyses.length)
-    : null;
+  const renderDemoTemplate = () => {
+    const data = {
+      ...DEMO_RESUME_DATA,
+      selectedTemplate: demoTemplate,
+      accentColor: demoColor
+    };
+    if (demoTemplate === 'classic') return <ClassicTemplate data={data} />;
+    if (demoTemplate === 'minimal') return <MinimalTemplate data={data} />;
+    if (demoTemplate === 'executive') return <ExecutiveTemplate data={data} />;
+    if (demoTemplate === 'creative') return <CreativeTemplate data={data} />;
+    return <ModernTemplate data={data} />;
+  };
+
+  const avgScore =
+    analyses.length > 0
+      ? Math.round(analyses.reduce((acc, curr) => acc + (curr.overallScore || 0), 0) / analyses.length)
+      : null;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
       {/* Welcome Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8 pb-6 border-b border-blue-500/15">
         <div>
@@ -99,7 +125,7 @@ export default function DashboardPage() {
           </Link>
           <Link
             to="/builder"
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold text-white bg-electric-600 hover:bg-electric-500 shadow-glass-glow transition-all"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold text-white btn-3d"
           >
             <Plus className="w-4 h-4" />
             <span>New Resume</span>
@@ -148,7 +174,7 @@ export default function DashboardPage() {
           <p className="text-xs">Loading candidate dashboard...</p>
         </div>
       ) : (
-        <div className="space-y-10">
+        <div className="space-y-12">
           {/* Recent Saved Resumes */}
           <div>
             <div className="flex items-center justify-between mb-4">
@@ -157,7 +183,10 @@ export default function DashboardPage() {
                 <span>My Saved Resumes ({resumes.length})</span>
               </h2>
               {resumes.length > 0 && (
-                <Link to="/resumes" className="text-xs font-medium text-electric-400 hover:text-white flex items-center gap-1">
+                <Link
+                  to="/resumes"
+                  className="text-xs font-medium text-electric-400 hover:text-white flex items-center gap-1"
+                >
                   <span>View All</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </Link>
@@ -250,7 +279,10 @@ export default function DashboardPage() {
                 <span>Recent Resume Analyses ({analyses.length})</span>
               </h2>
               {analyses.length > 0 && (
-                <Link to="/analyses" className="text-xs font-medium text-electric-400 hover:text-white flex items-center gap-1">
+                <Link
+                  to="/analyses"
+                  className="text-xs font-medium text-electric-400 hover:text-white flex items-center gap-1"
+                >
                   <span>View All</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </Link>
@@ -277,7 +309,10 @@ export default function DashboardPage() {
             ) : (
               <div className="glass-panel rounded-xl overflow-hidden divide-y divide-space-800">
                 {analyses.slice(0, 5).map((item) => (
-                  <div key={item._id} className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-space-800/40 transition-colors">
+                  <div
+                    key={item._id}
+                    className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-space-800/40 transition-colors"
+                  >
                     <div className="flex items-center gap-4">
                       <div
                         className={`w-12 h-12 rounded-xl flex items-center justify-center font-bold text-base ${
@@ -291,7 +326,9 @@ export default function DashboardPage() {
                         {item.overallScore}
                       </div>
                       <div>
-                        <h4 className="font-semibold text-white text-sm">{item.resumeTitle || 'Resume Evaluation'}</h4>
+                        <h4 className="font-semibold text-white text-sm">
+                          {item.resumeTitle || 'Resume Evaluation'}
+                        </h4>
                         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-400 mt-0.5">
                           {item.targetRole && <span>Role: {item.targetRole}</span>}
                           <span>• {new Date(item.createdAt).toLocaleDateString()}</span>
@@ -310,6 +347,49 @@ export default function DashboardPage() {
                 ))}
               </div>
             )}
+          </div>
+
+          {/* Interactive A4 Paper Template Showcase inside Dashboard */}
+          <div>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+              <div>
+                <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                  <Eye className="w-5 h-5 text-electric-400" />
+                  <span>A4 Resume Template Gallery</span>
+                </h2>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  Preview our 5 ATS templates and color themes in real A4 proportions before building.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1 p-1 rounded-xl bg-space-900 border border-blue-500/20 overflow-x-auto no-scrollbar">
+                  {RESUME_TEMPLATES.map((tmpl) => (
+                    <button
+                      key={tmpl.id}
+                      onClick={() => setDemoTemplate(tmpl.id)}
+                      className={`h-7 px-2.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-1 ${
+                        demoTemplate === tmpl.id
+                          ? 'bg-electric-600 text-white shadow-glass-glow'
+                          : 'text-slate-400 hover:text-white'
+                      }`}
+                    >
+                      <span>{tmpl.name}</span>
+                    </button>
+                  ))}
+                </div>
+
+                <ColorPickerPopover
+                  value={demoColor}
+                  onChange={setDemoColor}
+                  buttonClassName="h-9 px-3 rounded-xl text-xs font-semibold text-slate-200 bg-space-900 hover:bg-space-850 border border-blue-500/25 flex items-center justify-center gap-1.5 whitespace-nowrap"
+                />
+              </div>
+            </div>
+
+            <div className="glass-panel p-3 sm:p-6 rounded-2xl max-w-4xl mx-auto">
+              <A4ResumeViewport>{renderDemoTemplate()}</A4ResumeViewport>
+            </div>
           </div>
         </div>
       )}

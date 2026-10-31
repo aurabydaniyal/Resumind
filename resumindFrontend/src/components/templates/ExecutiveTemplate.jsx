@@ -19,20 +19,20 @@ export default function ExecutiveTemplate({ data }) {
     <div className="bg-white text-slate-900 font-sans shadow-2xl rounded-sm max-w-4xl mx-auto text-sm leading-relaxed border border-slate-200 overflow-hidden">
       {/* Commanding Executive Dark Banner with Dynamic Accent Bar */}
       <header
-        className="text-white p-6 sm:p-10 relative"
+        className="text-white p-10 relative"
         style={{
           background: `linear-gradient(135deg, #0f172a 0%, ${palette.darker} 100%)`,
           borderBottom: `4px solid ${palette.primary}`
         }}
       >
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div className="flex flex-row items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white uppercase">
+            <h1 className="text-3xl font-extrabold tracking-tight text-white uppercase">
               {personalInfo.fullName || 'Daniyal'}
             </h1>
             {data.targetRole && (
               <p
-                className="text-xs sm:text-sm font-bold uppercase tracking-widest mt-1"
+                className="text-sm font-bold uppercase tracking-widest mt-1"
                 style={{ color: palette.borderLight }}
               >
                 {data.targetRole}
@@ -40,7 +40,7 @@ export default function ExecutiveTemplate({ data }) {
             )}
           </div>
 
-          <div className="text-xs text-slate-200 md:text-right space-y-1">
+          <div className="text-xs text-slate-200 text-right space-y-1">
             {personalInfo.email && <div className="font-medium">{personalInfo.email}</div>}
             {personalInfo.phone && <div>{personalInfo.phone}</div>}
             {personalInfo.location && <div className="text-slate-300">{personalInfo.location}</div>}
@@ -52,15 +52,13 @@ export default function ExecutiveTemplate({ data }) {
             {[personalInfo.linkedin, personalInfo.github, personalInfo.website]
               .filter(Boolean)
               .map((link, idx) => (
-                <span key={idx} className="break-all">
-                  {link}
-                </span>
+                <span key={idx}>{link}</span>
               ))}
           </div>
         )}
       </header>
 
-      <div className="p-6 sm:p-10 space-y-6">
+      <div className="p-10 space-y-6">
         {/* Executive Summary */}
         {summary && (
           <section
@@ -76,7 +74,7 @@ export default function ExecutiveTemplate({ data }) {
             >
               Executive Profile
             </h2>
-            <p className="text-xs sm:text-sm text-slate-800 leading-relaxed">{summary}</p>
+            <p className="text-sm text-slate-800 leading-relaxed">{summary}</p>
           </section>
         )}
 
@@ -94,7 +92,7 @@ export default function ExecutiveTemplate({ data }) {
               <div className="flex-1 h-[1px] bg-slate-200" />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div className="grid grid-cols-2 gap-3 text-xs">
               {skills.map((group, idx) => (
                 <div
                   key={idx}
@@ -147,7 +145,7 @@ export default function ExecutiveTemplate({ data }) {
             <div className="space-y-5">
               {experience.map((exp, idx) => (
                 <div key={idx} className="text-xs">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
+                  <div className="flex flex-row items-center justify-between gap-1">
                     <div>
                       <span className="text-sm font-extrabold text-slate-900">
                         {exp.role || 'Role Title'}
@@ -162,7 +160,7 @@ export default function ExecutiveTemplate({ data }) {
                       )}
                     </div>
                     <span
-                      className="inline-block px-2 py-0.5 rounded text-[11px] font-semibold self-start sm:self-auto"
+                      className="inline-block px-2 py-0.5 rounded text-[11px] font-semibold"
                       style={{
                         backgroundColor: palette.lightBg,
                         color: palette.dark
@@ -213,11 +211,11 @@ export default function ExecutiveTemplate({ data }) {
                     backgroundColor: '#fafafa'
                   }}
                 >
-                  <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex items-center justify-between gap-2">
                     <span className="font-bold text-slate-900 text-xs">{proj.name}</span>
                     {proj.link && (
                       <span
-                        className="text-[11px] font-medium underline break-all"
+                        className="text-[11px] font-medium underline"
                         style={{ color: palette.primary }}
                       >
                         {proj.link}
@@ -241,7 +239,7 @@ export default function ExecutiveTemplate({ data }) {
         )}
 
         {/* Education & Certifications Footer Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+        <div className="grid grid-cols-2 gap-6 pt-2">
           {education.length > 0 && (
             <section>
               <div className="flex items-center gap-2 mb-2.5">
@@ -312,4 +310,3 @@ export default function ExecutiveTemplate({ data }) {
     </div>
   );
 }
-

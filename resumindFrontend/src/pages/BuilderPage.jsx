@@ -7,7 +7,9 @@ import ModernTemplate from '../components/templates/ModernTemplate';
 import MinimalTemplate from '../components/templates/MinimalTemplate';
 import ExecutiveTemplate from '../components/templates/ExecutiveTemplate';
 import CreativeTemplate from '../components/templates/CreativeTemplate';
-import { ACCENT_PRESETS, RESUME_TEMPLATES } from '../components/templates/themeUtils';
+import A4ResumeViewport from '../components/templates/A4ResumeViewport';
+import ColorPickerPopover from '../components/templates/ColorPickerPopover';
+import { RESUME_TEMPLATES } from '../components/templates/themeUtils';
 import {
   Save,
   Download,
@@ -26,8 +28,7 @@ import {
   Check,
   X,
   HelpCircle,
-  AlertCircle,
-  Palette
+  AlertCircle
 } from 'lucide-react';
 
 const INITIAL_RESUME_STATE = {
@@ -84,8 +85,8 @@ export default function BuilderPage() {
   const navigate = useNavigate();
 
   const [resume, setResume] = useState(INITIAL_RESUME_STATE);
-  const [activeTab, setActiveTab] = useState('personal'); // personal, summary, skills, experience, education, projects, certs
-  const [previewMode, setPreviewMode] = useState(false); // Mobile preview toggle
+  const [activeTab, setActiveTab] = useState('personal');
+  const [previewMode, setPreviewMode] = useState(false);
   const [saving, setSaving] = useState(false);
   const [downloading, setDownloading] = useState(false);
   const [loadingResume, setLoadingResume] = useState(Boolean(resumeId));
@@ -118,7 +119,6 @@ export default function BuilderPage() {
     loadResume();
   }, [resumeId]);
 
-  // Handlers for personal info
   const handlePersonalInfoChange = (field, value) => {
     setResume((prev) => ({
       ...prev,
@@ -126,7 +126,6 @@ export default function BuilderPage() {
     }));
   };
 
-  // Handlers for experience
   const addExperience = () => {
     setResume((prev) => ({
       ...prev,
@@ -187,7 +186,6 @@ export default function BuilderPage() {
     });
   };
 
-  // Handlers for education
   const addEducation = () => {
     setResume((prev) => ({
       ...prev,
@@ -222,7 +220,6 @@ export default function BuilderPage() {
     }));
   };
 
-  // Handlers for projects
   const addProject = () => {
     setResume((prev) => ({
       ...prev,
@@ -255,7 +252,6 @@ export default function BuilderPage() {
     }));
   };
 
-  // Handlers for certifications
   const addCert = () => {
     setResume((prev) => ({
       ...prev,
@@ -287,7 +283,6 @@ export default function BuilderPage() {
     }));
   };
 
-  // Handlers for skills
   const addSkillCategory = () => {
     setResume((prev) => ({
       ...prev,
@@ -322,7 +317,6 @@ export default function BuilderPage() {
     }));
   };
 
-  // Save Resume to MongoDB Atlas
   const handleSave = async () => {
     setSaving(true);
     setSaveMessage('');
@@ -347,7 +341,6 @@ export default function BuilderPage() {
     }
   };
 
-  // Trigger selectable-text vector PDF generation
   const handleDownloadPdf = async () => {
     try {
       setDownloading(true);
@@ -359,7 +352,6 @@ export default function BuilderPage() {
     }
   };
 
-  // AI Improvement Assistant
   const handleRunAiImprovement = async () => {
     setAiLoading(true);
     setErrorMessage('');
@@ -398,7 +390,6 @@ export default function BuilderPage() {
     });
   };
 
-  // Render Template preview
   const renderTemplatePreview = () => {
     if (resume.selectedTemplate === 'classic') return <ClassicTemplate data={resume} />;
     if (resume.selectedTemplate === 'minimal') return <MinimalTemplate data={resume} />;
@@ -417,127 +408,105 @@ export default function BuilderPage() {
   }
 
   return (
-    <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 radial-bg">
-      {/* Top Controls Toolbar */}
-      <div className="glass-panel p-4 sm:p-5 rounded-2xl flex flex-col gap-4 sticky top-16 z-30">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-3 flex-1">
-            <input
-              type="text"
-              value={resume.title}
-              onChange={(e) => setResume({ ...resume, title: e.target.value })}
-              className="w-full sm:w-64 bg-space-900/90 border border-blue-500/30 rounded-xl px-3.5 py-2 text-sm font-bold text-white focus:outline-none focus:border-electric-500"
-              placeholder="Resume Title"
-            />
-            <div className="flex items-center gap-1 bg-space-900/90 p-1 rounded-xl border border-blue-500/20 text-xs overflow-x-auto no-scrollbar">
-              {RESUME_TEMPLATES.map((tmpl) => (
-                <button
-                  key={tmpl.id}
-                  onClick={() => setResume({ ...resume, selectedTemplate: tmpl.id })}
-                  className={`px-3 py-1.5 rounded-lg font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 ${
-                    resume.selectedTemplate === tmpl.id
-                      ? 'bg-electric-600 text-white shadow-glass-glow'
-                      : 'text-slate-400 hover:text-white'
-                  }`}
-                >
-                  <span>{tmpl.name}</span>
-                  {tmpl.badge === 'New' && (
-                    <span className="text-[9px] uppercase px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 border border-amber-400/30">
-                      New
-                    </span>
-                  )}
-                </button>
-              ))}
-            </div>
-          </div>
+    <div className="max-w-[1600px] mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-4 sm:space-y-6 radial-bg">
+      {/* Compact Top Controls Toolbar */}
+      <div className="glass-panel p-2.5 sm:p-3.5 rounded-2xl flex flex-col gap-2.5 lg:sticky lg:top-16 z-30">
+        {/* Row 1: Title + Template Switcher */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <input
+            type="text"
+            value={resume.title}
+            onChange={(e) => setResume({ ...resume, title: e.target.value })}
+            className="w-full sm:w-56 h-9 bg-space-900/90 border border-blue-500/30 rounded-xl px-3 text-xs sm:text-sm font-bold text-white focus:outline-none focus:border-electric-500"
+            placeholder="Resume Title"
+          />
 
-          {/* Action Buttons */}
-          <div className="flex flex-wrap items-center gap-2">
-            {/* Mobile Preview Toggle */}
-            <button
-              onClick={() => setPreviewMode(!previewMode)}
-              className="lg:hidden flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-200 bg-space-800 border border-blue-500/25"
-            >
-              {previewMode ? <Edit3 className="w-3.5 h-3.5 text-electric-400" /> : <Eye className="w-3.5 h-3.5 text-electric-400" />}
-              <span>{previewMode ? 'Edit Form' : 'Live Preview'}</span>
-            </button>
-
-            {/* AI Enhance Button */}
-            <button
-              onClick={() => setAiModalOpen(true)}
-              className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-electric-300 bg-electric-950/90 hover:bg-electric-900 border border-electric-500/35 transition-all shadow-glass-glow"
-            >
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>AI Coach</span>
-            </button>
-
-            {/* Save Button */}
-            <button
-              onClick={handleSave}
-              disabled={saving}
-              className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold text-white bg-space-800 hover:bg-space-700 border border-blue-500/30 transition-all"
-            >
-              {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
-              <span>{saving ? 'Saving...' : 'Save'}</span>
-            </button>
-
-            {/* PDF Download Button */}
-            <button
-              onClick={handleDownloadPdf}
-              disabled={downloading}
-              className="w-full sm:w-auto flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold text-white btn-3d"
-            >
-              {downloading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
-              <span>Export PDF</span>
-            </button>
+          <div className="flex items-center gap-1 bg-space-900/90 p-1 rounded-xl border border-blue-500/20 text-[11px] sm:text-xs overflow-x-auto no-scrollbar">
+            {RESUME_TEMPLATES.map((tmpl) => (
+              <button
+                key={tmpl.id}
+                type="button"
+                onClick={() => setResume({ ...resume, selectedTemplate: tmpl.id })}
+                className={`h-7 px-2.5 rounded-lg font-semibold transition-all whitespace-nowrap flex items-center gap-1 ${
+                  resume.selectedTemplate === tmpl.id
+                    ? 'bg-electric-600 text-white shadow-glass-glow'
+                    : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                <span>{tmpl.name}</span>
+                {tmpl.badge === 'New' && (
+                  <span className="text-[8px] uppercase px-1 rounded bg-amber-500/20 text-amber-300 border border-amber-400/30">
+                    New
+                  </span>
+                )}
+              </button>
+            ))}
           </div>
         </div>
 
-        {/* Accent Color Customizer Bar */}
-        <div className="pt-3 border-t border-blue-500/15 flex flex-wrap items-center justify-between gap-3 text-xs">
-          <div className="flex items-center gap-2 text-slate-300 font-semibold">
-            <Palette className="w-4 h-4 text-electric-400" />
-            <span>Template Color Theme:</span>
-          </div>
+        {/* Row 2: All Action Buttons + Color Popup Button aligned on one line with identical height */}
+        <div className="grid grid-cols-5 lg:flex lg:items-center lg:justify-end gap-1.5 sm:gap-2 pt-2 border-t border-blue-500/15">
+          {/* Mobile Preview Toggle */}
+          <button
+            type="button"
+            onClick={() => setPreviewMode(!previewMode)}
+            className="lg:hidden h-9 px-2 sm:px-3 rounded-xl text-[11px] sm:text-xs font-semibold text-slate-200 bg-space-850 hover:bg-space-800 border border-blue-500/25 flex items-center justify-center gap-1 whitespace-nowrap"
+          >
+            {previewMode ? (
+              <Edit3 className="w-3.5 h-3.5 text-electric-400 shrink-0" />
+            ) : (
+              <Eye className="w-3.5 h-3.5 text-electric-400 shrink-0" />
+            )}
+            <span>{previewMode ? 'Edit' : 'Preview'}</span>
+          </button>
 
-          <div className="flex flex-wrap items-center gap-2">
-            {ACCENT_PRESETS.map((preset) => {
-              const isSelected = (resume.accentColor || '#2563eb').toLowerCase() === preset.hex.toLowerCase();
-              return (
-                <button
-                  key={preset.id}
-                  type="button"
-                  onClick={() => setResume({ ...resume, accentColor: preset.hex })}
-                  title={preset.name}
-                  className={`group flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-[11px] font-medium transition-all ${
-                    isSelected
-                      ? 'bg-space-800 text-white border-white/60 shadow-sm scale-105'
-                      : 'bg-space-900/70 text-slate-400 border-blue-500/15 hover:text-white'
-                  }`}
-                >
-                  <span
-                    className="w-3.5 h-3.5 rounded-full shrink-0 border border-white/25"
-                    style={{ backgroundColor: preset.hex }}
-                  />
-                  <span className="hidden sm:inline">{preset.name.split(' ')[1] || preset.name}</span>
-                </button>
-              );
-            })}
+          {/* Popup Color Picker Button */}
+          <ColorPickerPopover
+            value={resume.accentColor || '#2563eb'}
+            onChange={(hex) => setResume({ ...resume, accentColor: hex })}
+            buttonClassName="w-full lg:w-auto h-9 px-2 sm:px-3.5 rounded-xl text-[11px] sm:text-xs font-semibold text-slate-200 bg-space-850 hover:bg-space-800 border border-blue-500/25 flex items-center justify-center gap-1.5 transition-all whitespace-nowrap"
+          />
 
-            {/* Custom Color Input */}
-            <label
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-space-900 border border-blue-500/25 text-[11px] text-slate-300 hover:text-white cursor-pointer"
-              title="Choose any custom color"
-            >
-              <input
-                type="color"
-                value={resume.accentColor || '#2563eb'}
-                onChange={(e) => setResume({ ...resume, accentColor: e.target.value })}
-                className="w-4 h-4 rounded cursor-pointer bg-transparent border-0 p-0"
-              />
-              <span>Custom</span>
-            </label>
-          </div>
+          {/* AI Coach Button */}
+          <button
+            type="button"
+            onClick={() => setAiModalOpen(true)}
+            className="h-9 px-2 sm:px-3.5 rounded-xl text-[11px] sm:text-xs font-semibold text-electric-300 bg-electric-950/90 hover:bg-electric-900 border border-electric-500/35 flex items-center justify-center gap-1 transition-all whitespace-nowrap"
+          >
+            <Sparkles className="w-3.5 h-3.5 shrink-0" />
+            <span>AI</span>
+            <span className="hidden sm:inline">Coach</span>
+          </button>
+
+          {/* Save Button */}
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={saving}
+            className="h-9 px-2 sm:px-4 rounded-xl text-[11px] sm:text-xs font-semibold text-white bg-space-800 hover:bg-space-700 border border-blue-500/30 flex items-center justify-center gap-1 transition-all whitespace-nowrap"
+          >
+            {saving ? (
+              <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0" />
+            ) : (
+              <Save className="w-3.5 h-3.5 shrink-0" />
+            )}
+            <span>{saving ? '...' : 'Save'}</span>
+          </button>
+
+          {/* PDF Export Button */}
+          <button
+            type="button"
+            onClick={handleDownloadPdf}
+            disabled={downloading}
+            className="h-9 px-2 sm:px-4 rounded-xl text-[11px] sm:text-xs font-semibold text-white btn-3d flex items-center justify-center gap-1 whitespace-nowrap"
+          >
+            {downloading ? (
+              <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0" />
+            ) : (
+              <Download className="w-3.5 h-3.5 shrink-0" />
+            )}
+            <span>PDF</span>
+          </button>
         </div>
       </div>
 
@@ -556,11 +525,11 @@ export default function BuilderPage() {
       )}
 
       {/* Main Builder Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        {/* Left Column: Form Editor (hidden on mobile if previewMode is true) */}
-        <div className={`lg:col-span-6 space-y-6 ${previewMode ? 'hidden lg:block' : 'block'}`}>
-          {/* Section Navigation Tabs */}
-          <div className="flex flex-wrap gap-1.5 p-1.5 rounded-xl bg-space-900 border border-blue-500/15 text-xs font-medium">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-start">
+        {/* Left Column: Form Editor */}
+        <div className={`lg:col-span-6 space-y-4 ${previewMode ? 'hidden lg:block' : 'block'}`}>
+          {/* Section Navigation Tabs (Single horizontal row on mobile) */}
+          <div className="flex items-center gap-1.5 p-1.5 rounded-xl bg-space-900 border border-blue-500/15 text-xs font-medium overflow-x-auto no-scrollbar">
             {[
               { id: 'personal', label: 'Contact', icon: User },
               { id: 'summary', label: 'Summary', icon: Edit3 },
@@ -575,7 +544,7 @@ export default function BuilderPage() {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all ${
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all whitespace-nowrap shrink-0 ${
                     activeTab === tab.id
                       ? 'bg-electric-600 text-white font-semibold shadow-sm'
                       : 'text-slate-400 hover:text-white hover:bg-space-800'
@@ -588,12 +557,14 @@ export default function BuilderPage() {
             })}
           </div>
 
-          {/* Form Content Accordion */}
-          <div className="glass-panel p-6 rounded-2xl space-y-6">
+          {/* Form Content Panel */}
+          <div className="glass-panel p-4 sm:p-6 rounded-2xl space-y-6">
             {/* 1. Contact / Personal Info */}
             {activeTab === 'personal' && (
               <div className="space-y-4">
-                <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-2">Personal Information</h3>
+                <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-2">
+                  Personal Information
+                </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
                   <div>
                     <label className="block text-slate-400 mb-1">Full Name</label>
@@ -683,7 +654,9 @@ export default function BuilderPage() {
             {activeTab === 'summary' && (
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-bold text-white uppercase tracking-wider">Professional Summary</h3>
+                  <h3 className="text-sm font-bold text-white uppercase tracking-wider">
+                    Professional Summary
+                  </h3>
                   <button
                     onClick={() => setAiModalOpen(true)}
                     className="text-xs text-electric-400 hover:text-white flex items-center gap-1 font-medium"
@@ -709,7 +682,9 @@ export default function BuilderPage() {
             {activeTab === 'experience' && (
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-bold text-white uppercase tracking-wider">Work Experience</h3>
+                  <h3 className="text-sm font-bold text-white uppercase tracking-wider">
+                    Work Experience
+                  </h3>
                   <button
                     onClick={addExperience}
                     className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-electric-600 hover:bg-electric-500"
@@ -720,7 +695,10 @@ export default function BuilderPage() {
                 </div>
 
                 {resume.experience.map((exp, expIdx) => (
-                  <div key={exp.id || expIdx} className="p-4 rounded-xl bg-space-850/80 border border-blue-500/20 space-y-3">
+                  <div
+                    key={exp.id || expIdx}
+                    className="p-4 rounded-xl bg-space-850/80 border border-blue-500/20 space-y-3"
+                  >
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-bold text-white">Position #{expIdx + 1}</span>
                       <button
@@ -801,7 +779,6 @@ export default function BuilderPage() {
                       </label>
                     </div>
 
-                    {/* Bullets */}
                     <div className="pt-2 space-y-2">
                       <div className="flex items-center justify-between text-xs text-slate-400">
                         <span>Key Responsibilities & Metrics</span>
@@ -840,7 +817,9 @@ export default function BuilderPage() {
             {activeTab === 'skills' && (
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-bold text-white uppercase tracking-wider">Skills & Competencies</h3>
+                  <h3 className="text-sm font-bold text-white uppercase tracking-wider">
+                    Skills & Competencies
+                  </h3>
                   <button
                     onClick={addSkillCategory}
                     className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-electric-600 hover:bg-electric-500"
@@ -851,14 +830,17 @@ export default function BuilderPage() {
                 </div>
 
                 {resume.skills.map((group, skIdx) => (
-                  <div key={skIdx} className="p-4 rounded-xl bg-space-850/80 border border-blue-500/20 space-y-2">
+                  <div
+                    key={skIdx}
+                    className="p-4 rounded-xl bg-space-850/80 border border-blue-500/20 space-y-2"
+                  >
                     <div className="flex items-center justify-between gap-3">
                       <input
                         type="text"
                         value={group.category}
                         onChange={(e) => updateSkillCategory(skIdx, e.target.value)}
                         placeholder="Category Name (e.g. Languages)"
-                        className="px-3 py-1.5 rounded-lg glass-input text-xs font-bold w-1/2"
+                        className="px-3 py-1.5 rounded-lg glass-input text-xs font-bold w-2/3 sm:w-1/2"
                       />
                       <button
                         onClick={() => removeSkillCategory(skIdx)}
@@ -889,7 +871,9 @@ export default function BuilderPage() {
             {activeTab === 'projects' && (
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-bold text-white uppercase tracking-wider">Key Projects</h3>
+                  <h3 className="text-sm font-bold text-white uppercase tracking-wider">
+                    Key Projects
+                  </h3>
                   <button
                     onClick={addProject}
                     className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-electric-600 hover:bg-electric-500"
@@ -900,7 +884,10 @@ export default function BuilderPage() {
                 </div>
 
                 {resume.projects.map((proj, projIdx) => (
-                  <div key={proj.id || projIdx} className="p-4 rounded-xl bg-space-850/80 border border-blue-500/20 space-y-3">
+                  <div
+                    key={proj.id || projIdx}
+                    className="p-4 rounded-xl bg-space-850/80 border border-blue-500/20 space-y-3"
+                  >
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-bold text-white">Project #{projIdx + 1}</span>
                       <button
@@ -953,7 +940,9 @@ export default function BuilderPage() {
             {activeTab === 'education' && (
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-bold text-white uppercase tracking-wider">Education</h3>
+                  <h3 className="text-sm font-bold text-white uppercase tracking-wider">
+                    Education
+                  </h3>
                   <button
                     onClick={addEducation}
                     className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-electric-600 hover:bg-electric-500"
@@ -964,7 +953,10 @@ export default function BuilderPage() {
                 </div>
 
                 {resume.education.map((edu, eduIdx) => (
-                  <div key={edu.id || eduIdx} className="p-4 rounded-xl bg-space-850/80 border border-blue-500/20 space-y-3">
+                  <div
+                    key={edu.id || eduIdx}
+                    className="p-4 rounded-xl bg-space-850/80 border border-blue-500/20 space-y-3"
+                  >
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-bold text-white">Degree #{eduIdx + 1}</span>
                       <button
@@ -1038,7 +1030,9 @@ export default function BuilderPage() {
             {activeTab === 'certs' && (
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-bold text-white uppercase tracking-wider">Certifications</h3>
+                  <h3 className="text-sm font-bold text-white uppercase tracking-wider">
+                    Certifications
+                  </h3>
                   <button
                     onClick={addCert}
                     className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-electric-600 hover:bg-electric-500"
@@ -1049,7 +1043,10 @@ export default function BuilderPage() {
                 </div>
 
                 {resume.certifications.map((cert, cIdx) => (
-                  <div key={cert.id || cIdx} className="p-4 rounded-xl bg-space-850/80 border border-blue-500/20 space-y-3">
+                  <div
+                    key={cert.id || cIdx}
+                    className="p-4 rounded-xl bg-space-850/80 border border-blue-500/20 space-y-3"
+                  >
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-bold text-white">Cert #{cIdx + 1}</span>
                       <button
@@ -1099,23 +1096,20 @@ export default function BuilderPage() {
           </div>
         </div>
 
-        {/* Right Column: Live Responsive Preview (hidden on mobile when editing) */}
-        <div className={`lg:col-span-6 sticky top-28 ${previewMode ? 'block' : 'hidden lg:block'}`}>
-          <div className="glass-panel p-4 md:p-6 rounded-2xl">
-            <div className="flex items-center justify-between text-xs text-slate-400 mb-4 pb-2 border-b border-space-800">
+        {/* Right Column: True A4 Paper Live Preview (scales down to fit mobile like a real A4 sheet, no internal scroll) */}
+        <div className={`lg:col-span-6 lg:sticky lg:top-28 ${previewMode ? 'block' : 'hidden lg:block'}`}>
+          <div className="glass-panel p-3 sm:p-5 rounded-2xl">
+            <div className="flex items-center justify-between text-xs text-slate-400 mb-3 pb-2 border-b border-space-800">
               <span className="flex items-center gap-1.5 font-semibold text-slate-200">
                 <Eye className="w-3.5 h-3.5 text-electric-400" />
-                <span>Live Interactive Preview</span>
+                <span>A4 Paper Live Preview</span>
               </span>
               <span className="capitalize font-medium text-electric-400 bg-space-900 px-2.5 py-0.5 rounded border border-blue-500/20">
                 {resume.selectedTemplate} Template
               </span>
             </div>
 
-            {/* Scrollable preview container */}
-            <div className="max-h-[750px] overflow-y-auto rounded-xl border border-slate-700/60 shadow-2xl">
-              {renderTemplatePreview()}
-            </div>
+            <A4ResumeViewport>{renderTemplatePreview()}</A4ResumeViewport>
           </div>
         </div>
       </div>
@@ -1131,7 +1125,9 @@ export default function BuilderPage() {
                 </div>
                 <div>
                   <h3 className="font-bold text-white text-base">Resumind AI Coach</h3>
-                  <p className="text-xs text-slate-400">Strict Truthfulness Protocol: Enhances real bullets, never fabricates facts</p>
+                  <p className="text-xs text-slate-400">
+                    Strict Truthfulness Protocol: Enhances real bullets, never fabricates facts
+                  </p>
                 </div>
               </div>
               <button
@@ -1176,7 +1172,6 @@ export default function BuilderPage() {
             {/* Suggestions list */}
             {aiSuggestions && (
               <div className="space-y-6 pt-4 border-t border-space-800">
-                {/* Proposed Summary */}
                 {aiSuggestions.proposedSummary && (
                   <div className="p-4 rounded-xl bg-space-850 border border-blue-500/20 space-y-2">
                     <div className="flex items-center justify-between">
@@ -1196,17 +1191,23 @@ export default function BuilderPage() {
                   </div>
                 )}
 
-                {/* Proposed Bullets */}
                 {aiSuggestions.proposedBullets?.length > 0 && (
                   <div className="space-y-3">
                     <h4 className="text-xs font-bold text-white uppercase tracking-wider">
                       Proposed Bullet Rewrites
                     </h4>
                     {aiSuggestions.proposedBullets.map((item, idx) => (
-                      <div key={idx} className="p-3 rounded-xl bg-space-850/90 border border-blue-500/20 text-xs space-y-2">
+                      <div
+                        key={idx}
+                        className="p-3 rounded-xl bg-space-850/90 border border-blue-500/20 text-xs space-y-2"
+                      >
                         <div className="flex items-center justify-between text-slate-400 text-[11px]">
-                          <span>{item.company} — {item.role}</span>
-                          <span className="text-electric-400 font-medium">{item.metricAddedOrActionVerb}</span>
+                          <span>
+                            {item.company} — {item.role}
+                          </span>
+                          <span className="text-electric-400 font-medium">
+                            {item.metricAddedOrActionVerb}
+                          </span>
                         </div>
                         <div className="p-2 rounded bg-rose-950/20 text-slate-400">
                           <strong>Original:</strong> {item.original}
@@ -1216,7 +1217,9 @@ export default function BuilderPage() {
                             <strong className="text-emerald-400">Improved:</strong> {item.improved}
                           </div>
                           <button
-                            onClick={() => applyProposedBullet(item.company, item.original, item.improved)}
+                            onClick={() =>
+                              applyProposedBullet(item.company, item.original, item.improved)
+                            }
                             className="shrink-0 px-2 py-1 rounded bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-[10px]"
                           >
                             Accept
@@ -1227,7 +1230,6 @@ export default function BuilderPage() {
                   </div>
                 )}
 
-                {/* Targeted Questions */}
                 {aiSuggestions.targetedQuestions?.length > 0 && (
                   <div className="p-4 rounded-xl bg-space-850 border border-amber-500/20 space-y-2">
                     <h4 className="text-xs font-bold text-amber-400 flex items-center gap-1.5 uppercase tracking-wider">
