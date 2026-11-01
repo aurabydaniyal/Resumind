@@ -1,18 +1,18 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { extractTextFromFile } from '../services/documentParser';
 import { api } from '../services/api';
 import WeeklyLimitModal from '../components/WeeklyLimitModal';
-import GlassSurface from '../components/react-bits/GlassSurface';
-import SlideCommit from '../components/react-bits/SlideCommit';
 import {
+  FileSearch,
   UploadCloud,
   FileText,
   AlertCircle,
   CheckCircle2,
   Loader2,
   Sparkles,
+  ArrowRight,
   Info,
   Timer
 } from 'lucide-react';
@@ -32,7 +32,6 @@ export default function AnalyzerPage() {
   const [limitModalOpen, setLimitModalOpen] = useState(false);
   const [limitQuota, setLimitQuota] = useState(null);
 
-  const formRef = useRef(null);
   const navigate = useNavigate();
 
   const quota = user?.weeklyQuota || {
@@ -40,8 +39,6 @@ export default function AnalyzerPage() {
     analysesUsed: 0,
     analysesRemaining: 10
   };
-
-  const analysisLimitFull = quota.analysesRemaining <= 0;
 
   useEffect(() => {
     refreshUser();
@@ -71,13 +68,9 @@ export default function AnalyzerPage() {
     }
   };
 
-  const runAnalysis = async () => {
+  const handleAnalyze = async (e) => {
+    e.preventDefault();
     setError('');
-
-    if (analysisLimitFull) {
-      setLimitModalOpen(true);
-      return;
-    }
 
     if (!resumeText.trim()) {
       setError('Please upload a resume file or paste your resume text.');
@@ -103,6 +96,7 @@ export default function AnalyzerPage() {
       }
 
       if (res?.data?.analysis) {
+        // Pass result and context to results page
         navigate('/analyzer/results', {
           state: {
             analysis: res.data.analysis,
@@ -127,11 +121,6 @@ export default function AnalyzerPage() {
     }
   };
 
-  const handleAnalyzeSubmit = (e) => {
-    e.preventDefault();
-    runAnalysis();
-  };
-
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       {/* Weekly Limit Reached Popup Modal */}
@@ -145,42 +134,34 @@ export default function AnalyzerPage() {
       {/* Page Header */}
       <div className="text-center max-w-2xl mx-auto mb-10">
         <div className="flex flex-wrap items-center justify-center gap-2 mb-3">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#001845]/90 border border-[#0466c8]/40 text-[#3b9eff] text-xs font-semibold">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-electric-950/80 border border-electric-500/30 text-electric-400 text-xs font-semibold">
             <Sparkles className="w-3.5 h-3.5" />
             <span>Real ATS Rubric & Keyword Gap Evaluation</span>
           </div>
           <button
             type="button"
             onClick={() => {
-              if (analysisLimitFull) setLimitModalOpen(true);
+              if (quota.analysesRemaining <= 0) setLimitModalOpen(true);
             }}
-            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border transition-all ${
-              analysisLimitFull
-                ? 'bg-amber-950/70 border-amber-500/40 text-amber-300 cursor-pointer'
-                : 'bg-[#001845] border-[#33415c]/60 text-[#979dac]'
-            }`}
+            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-space-900 border border-blue-500/25 text-xs font-semibold text-slate-300"
           >
-            {analysisLimitFull ? (
-              <AlertCircle className="w-3.5 h-3.5 text-amber-400" />
-            ) : (
-              <Timer className="w-3.5 h-3.5 text-[#3b9eff]" />
-            )}
+            <Timer className="w-3.5 h-3.5 text-emerald-400" />
             <span>
-              <strong className={analysisLimitFull ? 'text-amber-300' : 'text-white'}>
+              <strong className={quota.analysesRemaining > 0 ? 'text-emerald-400' : 'text-amber-400'}>
                 {quota.analysesRemaining}/{quota.analysesLimit}
               </strong>{' '}
-              weekly analyses left {analysisLimitFull ? '(!)' : ''}
+              weekly analyses left
             </span>
           </button>
         </div>
         <h1 className="text-3xl font-extrabold text-white tracking-tight">Resume Analyzer</h1>
-        <p className="text-[#979dac] text-xs sm:text-sm mt-2">
+        <p className="text-slate-400 text-xs sm:text-sm mt-2">
           Upload your resume in PDF or DOCX format. Text is extracted directly in your browser.
         </p>
       </div>
 
       {error && (
-        <div className="mb-8 p-4 rounded-xl bg-rose-950/50 border border-rose-500/40 text-rose-300 text-xs flex items-start gap-3 shadow-glass">
+        <div className="mb-8 p-4 rounded-xl bg-rose-950/40 border border-rose-500/30 text-rose-300 text-xs flex items-start gap-3 shadow-glass">
           <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
           <div>
             <strong className="font-semibold block mb-0.5">Analysis Notice</strong>
@@ -189,13 +170,11 @@ export default function AnalyzerPage() {
         </div>
       )}
 
-      <form ref={formRef} onSubmit={handleAnalyzeSubmit} className="space-y-8">
+      <form onSubmit={handleAnalyze} className="space-y-8">
         {/* Step 1: Upload or Paste */}
-        <GlassSurface borderRadius={22} className="p-6 sm:p-8">
+        <div className="glass-panel p-6 sm:p-8 rounded-2xl">
           <h2 className="text-base font-bold text-white mb-4 flex items-center gap-2">
-            <span className="w-6 h-6 rounded-full bg-[#0466c8] text-white text-xs flex items-center justify-center font-bold">
-              1
-            </span>
+            <span className="w-6 h-6 rounded-full bg-electric-600 text-white text-xs flex items-center justify-center font-bold">1</span>
             <span>Upload Resume or Paste Text</span>
           </h2>
 
@@ -206,23 +185,23 @@ export default function AnalyzerPage() {
                 htmlFor="resume-upload"
                 className={`border-2 border-dashed rounded-xl p-6 flex flex-col items-center justify-center text-center cursor-pointer transition-all ${
                   file
-                    ? 'border-[#0466c8] bg-[#0466c8]/15'
-                    : 'border-[#33415c] hover:border-[#0466c8]/60 hover:bg-[#002855]/45'
+                    ? 'border-electric-500 bg-electric-950/20'
+                    : 'border-blue-500/25 hover:border-blue-500/50 hover:bg-space-850/50'
                 }`}
               >
-                <div className="w-12 h-12 rounded-xl bg-[#001845] border border-[#33415c]/60 flex items-center justify-center mb-3">
+                <div className="w-12 h-12 rounded-xl bg-space-800 flex items-center justify-center mb-3">
                   {extracting ? (
-                    <Loader2 className="w-6 h-6 text-[#3b9eff] animate-spin" />
+                    <Loader2 className="w-6 h-6 text-electric-400 animate-spin" />
                   ) : file ? (
-                    <FileText className="w-6 h-6 text-[#3b9eff]" />
+                    <FileText className="w-6 h-6 text-electric-400" />
                   ) : (
-                    <UploadCloud className="w-6 h-6 text-[#979dac]" />
+                    <UploadCloud className="w-6 h-6 text-slate-400" />
                   )}
                 </div>
                 <div className="text-sm font-semibold text-white mb-1">
                   {extracting ? 'Extracting text...' : file ? file.name : 'Choose a file or drag & drop'}
                 </div>
-                <p className="text-xs text-[#979dac]">PDF, DOCX, or TXT up to 10MB</p>
+                <p className="text-xs text-slate-400">PDF, DOCX, or TXT up to 10MB</p>
                 <input
                   id="resume-upload"
                   type="file"
@@ -243,7 +222,7 @@ export default function AnalyzerPage() {
             {/* Resume Title Input */}
             <div className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-[#979dac] uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
                   Resume Title / Identifier
                 </label>
                 <input
@@ -256,7 +235,7 @@ export default function AnalyzerPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-[#979dac] uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
                   Target Job Title / Role (Optional)
                 </label>
                 <input
@@ -273,10 +252,10 @@ export default function AnalyzerPage() {
           {/* Editable text preview */}
           <div className="mt-6">
             <div className="flex items-center justify-between mb-1.5">
-              <label className="block text-xs font-semibold text-[#979dac] uppercase tracking-wider">
+              <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
                 Extracted Resume Content (Review / Edit)
               </label>
-              <span className="text-[11px] text-[#7d8597]">
+              <span className="text-[11px] text-slate-500">
                 {resumeText.length} / 40,000 chars
               </span>
             </div>
@@ -288,23 +267,21 @@ export default function AnalyzerPage() {
               className="w-full p-3.5 rounded-lg glass-input text-xs font-mono leading-relaxed resize-y"
             />
           </div>
-        </GlassSurface>
+        </div>
 
         {/* Step 2: Target Job Description (Optional) */}
-        <GlassSurface borderRadius={22} className="p-6 sm:p-8">
+        <div className="glass-panel p-6 sm:p-8 rounded-2xl">
           <div className="flex items-start justify-between gap-4 mb-4">
             <h2 className="text-base font-bold text-white flex items-center gap-2">
-              <span className="w-6 h-6 rounded-full bg-[#0466c8] text-white text-xs flex items-center justify-center font-bold">
-                2
-              </span>
+              <span className="w-6 h-6 rounded-full bg-electric-600 text-white text-xs flex items-center justify-center font-bold">2</span>
               <span>Target Job Description (Recommended)</span>
             </h2>
-            <span className="text-xs px-2.5 py-0.5 rounded-full bg-[#001845] text-[#3b9eff] border border-[#0466c8]/30 font-medium">
+            <span className="text-xs px-2.5 py-0.5 rounded-full bg-space-800 text-electric-400 border border-blue-500/20 font-medium">
               Keyword Matching
             </span>
           </div>
 
-          <p className="text-xs text-[#979dac] mb-3">
+          <p className="text-xs text-slate-400 mb-3">
             Paste the job posting description to detect missing skill keywords and alignment score.
           </p>
 
@@ -315,25 +292,33 @@ export default function AnalyzerPage() {
             placeholder="Paste target job description and requirements here..."
             className="w-full p-3.5 rounded-lg glass-input text-xs leading-relaxed resize-y"
           />
-        </GlassSurface>
+        </div>
 
-        {/* Submit Action — @react-bits/SlideCommit-JS-CSS */}
+        {/* Submit Action */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
-          <div className="text-xs text-[#979dac] flex items-center gap-2">
-            <Info className="w-4 h-4 text-[#3b9eff] shrink-0" />
+          <div className="text-xs text-slate-400 flex items-center gap-2">
+            <Info className="w-4 h-4 text-electric-400 shrink-0" />
             <span>Analysis runs against the 100-point transparent ATS rubric.</span>
           </div>
 
-          <SlideCommit
-            onCommit={runAnalysis}
-            disabled={!analysisLimitFull && (analyzing || extracting || !resumeText.trim())}
-            loading={analyzing}
-            limitFull={analysisLimitFull}
-            onLimitClick={() => setLimitModalOpen(true)}
-            label="Slide to Generate ATS Score"
-            loadingLabel="Evaluating Resume..."
-            limitLabel="Weekly Limit Full — Click for Timer (!)"
-          />
+          <button
+            type="submit"
+            disabled={analyzing || extracting || !resumeText.trim()}
+            className="w-full sm:w-auto min-w-[220px] flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl font-semibold text-white btn-3d disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {analyzing ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>Evaluating Resume...</span>
+              </>
+            ) : (
+              <>
+                <FileSearch className="w-4 h-4" />
+                <span>Generate ATS Analysis</span>
+                <ArrowRight className="w-4 h-4 ml-1" />
+              </>
+            )}
+          </button>
         </div>
       </form>
     </div>

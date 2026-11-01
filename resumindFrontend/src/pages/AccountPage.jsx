@@ -2,8 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
-import WeeklyLimitModal from '../components/WeeklyLimitModal';
-import GlassSurface from '../components/react-bits/GlassSurface';
 import {
   User,
   Shield,
@@ -20,8 +18,7 @@ import {
   ArrowRight,
   Clock,
   Timer,
-  RefreshCw,
-  AlertCircle
+  RefreshCw
 } from 'lucide-react';
 
 function getRemainingParts(resetAt) {
@@ -41,7 +38,6 @@ export default function AccountPage() {
   const [resumesCount, setResumesCount] = useState(0);
   const [analysesCount, setAnalysesCount] = useState(0);
   const [bestScore, setBestScore] = useState(null);
-  const [limitModalType, setLimitModalType] = useState(null);
 
   const quota = user?.weeklyQuota || {
     resumesLimit: 10,
@@ -52,9 +48,6 @@ export default function AccountPage() {
     analysesRemaining: 10,
     resetAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
   };
-
-  const resumeLimitFull = quota.resumesRemaining <= 0;
-  const analysisLimitFull = quota.analysesRemaining <= 0;
 
   const [countdown, setCountdown] = useState(() => getRemainingParts(quota.resetAt));
 
@@ -114,20 +107,13 @@ export default function AccountPage() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-8 radial-bg">
-      <WeeklyLimitModal
-        open={Boolean(limitModalType)}
-        onClose={() => setLimitModalType(null)}
-        limitType={limitModalType || 'resume'}
-        quota={user?.weeklyQuota}
-      />
-
       {/* 3D Profile Banner Header */}
-      <GlassSurface borderRadius={26} className="p-6 sm:p-8 relative overflow-hidden">
-        <div className="absolute -right-12 -top-12 w-56 h-56 rounded-full bg-[#0466c8]/20 blur-3xl pointer-events-none" />
+      <div className="glass-panel p-6 sm:p-8 rounded-3xl relative overflow-hidden">
+        <div className="absolute -right-12 -top-12 w-56 h-56 rounded-full bg-electric-600/15 blur-3xl pointer-events-none" />
         <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
           <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-5">
-            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-[#0466c8] via-[#0353a4] to-[#023e7d] p-0.5 shadow-blue-glow shrink-0">
-              <div className="w-full h-full bg-[#001233]/90 rounded-[14px] flex items-center justify-center text-xl sm:text-2xl font-extrabold text-white tracking-wider">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-electric-500 via-electric-600 to-blue-800 p-0.5 shadow-blue-glow shrink-0">
+              <div className="w-full h-full bg-space-900/90 rounded-[14px] flex items-center justify-center text-xl sm:text-2xl font-extrabold text-white tracking-wider">
                 {initials}
               </div>
             </div>
@@ -139,8 +125,8 @@ export default function AccountPage() {
               <h1 className="text-xl sm:text-3xl font-extrabold text-white tracking-tight truncate">
                 {user?.name || 'Candidate'}
               </h1>
-              <p className="text-xs sm:text-sm text-[#979dac] break-all mt-0.5 flex items-center gap-1.5">
-                <Mail className="w-3.5 h-3.5 text-[#3b9eff] shrink-0" />
+              <p className="text-xs sm:text-sm text-slate-400 break-all mt-0.5 flex items-center gap-1.5">
+                <Mail className="w-3.5 h-3.5 text-electric-400 shrink-0" />
                 <span>{user?.email || 'No email listed'}</span>
               </p>
             </div>
@@ -154,59 +140,59 @@ export default function AccountPage() {
             <span>Sign Out</span>
           </button>
         </div>
-      </GlassSurface>
+      </div>
 
       {/* Career Activity Snapshot */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
-        <GlassSurface borderRadius={20} interactive className="p-5 flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-[#0466c8]/25 border border-[#0466c8]/40 flex items-center justify-center shrink-0">
-            <FileText className="w-6 h-6 text-[#3b9eff]" />
+        <div className="glass-card p-5 rounded-2xl flex items-center gap-4">
+          <div className="w-12 h-12 rounded-xl bg-electric-600/20 border border-electric-500/30 flex items-center justify-center shrink-0 shadow-glass-glow">
+            <FileText className="w-6 h-6 text-electric-400" />
           </div>
           <div>
-            <span className="text-xs text-[#979dac] block mb-0.5">Saved Resumes</span>
+            <span className="text-xs text-slate-400 block mb-0.5">Saved Resumes</span>
             <strong className="text-2xl font-extrabold text-white">{resumesCount}</strong>
           </div>
-        </GlassSurface>
+        </div>
 
-        <GlassSurface borderRadius={20} interactive className="p-5 flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-emerald-600/20 border border-emerald-500/35 flex items-center justify-center shrink-0">
+        <div className="glass-card p-5 rounded-2xl flex items-center gap-4">
+          <div className="w-12 h-12 rounded-xl bg-emerald-600/20 border border-emerald-500/30 flex items-center justify-center shrink-0">
             <Award className="w-6 h-6 text-emerald-400" />
           </div>
           <div>
-            <span className="text-xs text-[#979dac] block mb-0.5">Top ATS Score</span>
+            <span className="text-xs text-slate-400 block mb-0.5">Top ATS Score</span>
             <strong className="text-2xl font-extrabold text-white">
               {bestScore !== null ? `${bestScore}/100` : '—'}
             </strong>
           </div>
-        </GlassSurface>
+        </div>
 
-        <GlassSurface borderRadius={20} interactive className="p-5 flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-[#0353a4]/30 border border-[#0466c8]/40 flex items-center justify-center shrink-0">
-            <Clock className="w-6 h-6 text-[#3b9eff]" />
+        <div className="glass-card p-5 rounded-2xl flex items-center gap-4">
+          <div className="w-12 h-12 rounded-xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center shrink-0">
+            <Clock className="w-6 h-6 text-electric-400" />
           </div>
           <div>
-            <span className="text-xs text-[#979dac] block mb-0.5">ATS Reviews Run</span>
+            <span className="text-xs text-slate-400 block mb-0.5">ATS Reviews Run</span>
             <strong className="text-2xl font-extrabold text-white">{analysesCount}</strong>
           </div>
-        </GlassSurface>
+        </div>
       </div>
 
       {/* Weekly Usage Quota & Reset Countdown Section */}
-      <GlassSurface borderRadius={22} className="p-6 sm:p-7 space-y-5">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-[#33415c]/50">
+      <div className="glass-panel p-6 sm:p-7 rounded-2xl space-y-5 border border-blue-500/25">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-blue-500/15">
           <div>
             <h2 className="text-sm sm:text-base font-bold text-white uppercase tracking-wider flex items-center gap-2">
-              <Timer className="w-4 h-4 text-[#3b9eff]" />
+              <Timer className="w-4 h-4 text-electric-400" />
               <span>Weekly Usage Quota & Reset Timer</span>
             </h2>
-            <p className="text-xs text-[#979dac] mt-1">
+            <p className="text-xs text-slate-400 mt-1">
               Each account includes 10 new resume builds and 10 AI ATS evaluations per 7-day cycle.
             </p>
           </div>
 
-          <div className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[#001233]/90 border border-[#0466c8]/40 text-xs">
-            <RefreshCw className="w-3.5 h-3.5 text-[#3b9eff] animate-spin" style={{ animationDuration: '8s' }} />
-            <span className="text-[#979dac]">Resets in:</span>
+          <div className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-space-900 border border-electric-500/30 text-xs">
+            <RefreshCw className="w-3.5 h-3.5 text-electric-400 animate-spin" style={{ animationDuration: '8s' }} />
+            <span className="text-slate-400">Resets in:</span>
             <strong className="font-mono font-bold text-white">
               {countdown.days}d {String(countdown.hours).padStart(2, '0')}h {String(countdown.minutes).padStart(2, '0')}m {String(countdown.seconds).padStart(2, '0')}s
             </strong>
@@ -215,15 +201,15 @@ export default function AccountPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {/* Resume Creation Quota Card */}
-          <div className="p-4 sm:p-5 rounded-2xl bg-[#001845]/90 border border-[#33415c]/60 space-y-3">
+          <div className="p-4 sm:p-5 rounded-2xl bg-space-850/90 border border-blue-500/20 space-y-3">
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-[#0466c8]/25 border border-[#0466c8]/40 flex items-center justify-center">
-                  <PenTool className="w-4 h-4 text-[#3b9eff]" />
+                <div className="w-9 h-9 rounded-xl bg-electric-600/20 border border-electric-500/30 flex items-center justify-center">
+                  <PenTool className="w-4 h-4 text-electric-400" />
                 </div>
                 <div>
                   <h3 className="text-xs font-bold text-white uppercase tracking-wide">Weekly Resume Builds</h3>
-                  <span className="text-[11px] text-[#979dac]">Editing existing resumes is unlimited</span>
+                  <span className="text-[11px] text-slate-400">Editing existing resumes is unlimited</span>
                 </div>
               </div>
               <span
@@ -237,25 +223,25 @@ export default function AccountPage() {
               </span>
             </div>
 
-            <div className="w-full h-2.5 rounded-full bg-[#001233] overflow-hidden border border-[#33415c]/50">
+            <div className="w-full h-2.5 rounded-full bg-space-950 overflow-hidden border border-blue-500/15">
               <div
                 className={`h-full rounded-full transition-all duration-500 ${
                   quota.resumesRemaining === 0
                     ? 'bg-gradient-to-r from-amber-500 to-rose-500'
-                    : 'bg-gradient-to-r from-[#0466c8] to-[#3b9eff]'
+                    : 'bg-gradient-to-r from-electric-500 to-blue-400'
                 }`}
                 style={{ width: `${resumesPercent}%` }}
               />
             </div>
 
-            <div className="flex items-center justify-between text-[11px] text-[#979dac]">
-              <span>Used this week: <strong className="text-white">{quota.resumesUsed}</strong></span>
-              <span>Weekly limit: <strong className="text-white">{quota.resumesLimit} resumes</strong></span>
+            <div className="flex items-center justify-between text-[11px] text-slate-400">
+              <span>Used this week: <strong className="text-slate-200">{quota.resumesUsed}</strong></span>
+              <span>Weekly limit: <strong className="text-slate-200">{quota.resumesLimit} resumes</strong></span>
             </div>
           </div>
 
           {/* AI Resume Analysis Quota Card */}
-          <div className="p-4 sm:p-5 rounded-2xl bg-[#001845]/90 border border-[#33415c]/60 space-y-3">
+          <div className="p-4 sm:p-5 rounded-2xl bg-space-850/90 border border-blue-500/20 space-y-3">
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-2.5">
                 <div className="w-9 h-9 rounded-xl bg-emerald-600/20 border border-emerald-500/30 flex items-center justify-center">
@@ -263,7 +249,7 @@ export default function AccountPage() {
                 </div>
                 <div>
                   <h3 className="text-xs font-bold text-white uppercase tracking-wide">Weekly AI ATS Analyses</h3>
-                  <span className="text-[11px] text-[#979dac]">100-point rubric & keyword reviews</span>
+                  <span className="text-[11px] text-slate-400">100-point rubric & keyword reviews</span>
                 </div>
               </div>
               <span
@@ -277,7 +263,7 @@ export default function AccountPage() {
               </span>
             </div>
 
-            <div className="w-full h-2.5 rounded-full bg-[#001233] overflow-hidden border border-[#33415c]/50">
+            <div className="w-full h-2.5 rounded-full bg-space-950 overflow-hidden border border-blue-500/15">
               <div
                 className={`h-full rounded-full transition-all duration-500 ${
                   quota.analysesRemaining === 0
@@ -288,189 +274,139 @@ export default function AccountPage() {
               />
             </div>
 
-            <div className="flex items-center justify-between text-[11px] text-[#979dac]">
-              <span>Used this week: <strong className="text-white">{quota.analysesUsed}</strong></span>
-              <span>Weekly limit: <strong className="text-white">{quota.analysesLimit} analyses</strong></span>
+            <div className="flex items-center justify-between text-[11px] text-slate-400">
+              <span>Used this week: <strong className="text-slate-200">{quota.analysesUsed}</strong></span>
+              <span>Weekly limit: <strong className="text-slate-200">{quota.analysesLimit} analyses</strong></span>
             </div>
           </div>
         </div>
-      </GlassSurface>
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
         {/* Personal Account Information */}
-        <GlassSurface borderRadius={22} className="p-6 space-y-4">
+        <div className="glass-panel p-6 rounded-2xl space-y-4">
           <h2 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
-            <User className="w-4 h-4 text-[#3b9eff]" />
+            <User className="w-4 h-4 text-electric-400" />
             <span>Personal Details</span>
           </h2>
 
           <div className="space-y-3 text-xs">
-            <div className="p-3.5 rounded-xl bg-[#001845]/90 border border-[#33415c]/60">
-              <span className="text-[11px] text-[#979dac] block mb-0.5">Full Name</span>
+            <div className="p-3.5 rounded-xl bg-space-850/90 border border-blue-500/20">
+              <span className="text-[11px] text-slate-400 block mb-0.5">Full Name</span>
               <strong className="text-sm text-white font-semibold break-words">
                 {user?.name || 'Candidate'}
               </strong>
             </div>
 
-            <div className="p-3.5 rounded-xl bg-[#001845]/90 border border-[#33415c]/60">
-              <span className="text-[11px] text-[#979dac] block mb-0.5">Registered Email</span>
+            <div className="p-3.5 rounded-xl bg-space-850/90 border border-blue-500/20">
+              <span className="text-[11px] text-slate-400 block mb-0.5">Registered Email</span>
               <span className="text-sm text-slate-200 break-all">{user?.email || 'N/A'}</span>
             </div>
 
-            <div className="p-3.5 rounded-xl bg-[#001845]/90 border border-[#33415c]/60 flex items-center justify-between gap-2">
+            <div className="p-3.5 rounded-xl bg-space-850/90 border border-blue-500/20 flex items-center justify-between gap-2">
               <div>
-                <span className="text-[11px] text-[#979dac] block mb-0.5">Membership Status</span>
+                <span className="text-[11px] text-slate-400 block mb-0.5">Membership Status</span>
                 <span className="text-sm font-semibold text-white flex items-center gap-1.5">
-                  <Calendar className="w-3.5 h-3.5 text-[#3b9eff]" />
+                  <Calendar className="w-3.5 h-3.5 text-electric-400" />
                   <span>{memberSince}</span>
                 </span>
               </div>
-              <span className="px-2.5 py-1 rounded-lg bg-[#001233] text-[#3b9eff] border border-[#0466c8]/40 font-semibold text-[11px]">
+              <span className="px-2.5 py-1 rounded-lg bg-electric-950 text-electric-400 border border-electric-500/30 font-semibold text-[11px]">
                 Active Plan (10/wk)
               </span>
             </div>
           </div>
-        </GlassSurface>
+        </div>
 
         {/* Quick Career Workspace Actions */}
-        <GlassSurface borderRadius={22} className="p-6 flex flex-col justify-between space-y-5">
+        <div className="glass-panel p-6 rounded-2xl flex flex-col justify-between space-y-5">
           <div className="space-y-4">
             <h2 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-[#3b9eff]" />
+              <Sparkles className="w-4 h-4 text-electric-400" />
               <span>Career Workspace</span>
             </h2>
-            <p className="text-xs text-[#979dac] leading-relaxed">
+            <p className="text-xs text-slate-300 leading-relaxed">
               Jump directly to your resume builder or run an instant ATS rubric analysis against a new job description.
             </p>
 
             <div className="space-y-3 pt-1">
-              {resumeLimitFull ? (
-                <button
-                  type="button"
-                  onClick={() => setLimitModalType('resume')}
-                  className="w-full p-3.5 rounded-xl btn-limit-locked flex items-center justify-between text-left"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-lg bg-amber-500/20 border border-amber-500/40 flex items-center justify-center">
-                      <AlertCircle className="w-4 h-4 text-amber-400" />
-                    </div>
-                    <div>
-                      <strong className="text-xs font-bold text-white block">
-                        Resume Builder Studio (!)
-                      </strong>
-                      <span className="text-[11px] text-amber-300">
-                        Weekly limit reached — click to view reset timer
-                      </span>
-                    </div>
+              <Link
+                to="/builder"
+                className="p-3.5 rounded-xl bg-space-850/90 hover:bg-space-800 border border-blue-500/20 hover:border-electric-500/40 flex items-center justify-between transition-all group"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-lg bg-electric-600/20 border border-electric-500/30 flex items-center justify-center">
+                    <PenTool className="w-4 h-4 text-electric-400" />
                   </div>
-                  <span className="px-2 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-500/40 font-black text-xs">
-                    !
-                  </span>
-                </button>
-              ) : (
-                <Link
-                  to="/builder"
-                  className="p-3.5 rounded-xl bg-[#001845]/90 hover:bg-[#002855] border border-[#33415c]/60 hover:border-[#0466c8]/60 flex items-center justify-between transition-all group"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-lg bg-[#0466c8]/25 border border-[#0466c8]/40 flex items-center justify-center">
-                      <PenTool className="w-4 h-4 text-[#3b9eff]" />
-                    </div>
-                    <div>
-                      <strong className="text-xs font-bold text-white block">Resume Builder Studio</strong>
-                      <span className="text-[11px] text-[#979dac]">
-                        {quota.resumesRemaining} of {quota.resumesLimit} weekly builds remaining
-                      </span>
-                    </div>
+                  <div>
+                    <strong className="text-xs font-bold text-white block">Resume Builder Studio</strong>
+                    <span className="text-[11px] text-slate-400">
+                      {quota.resumesRemaining} of {quota.resumesLimit} weekly builds remaining
+                    </span>
                   </div>
-                  <ArrowRight className="w-4 h-4 text-[#979dac] group-hover:text-white group-hover:translate-x-0.5 transition-all" />
-                </Link>
-              )}
+                </div>
+                <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-white group-hover:translate-x-0.5 transition-all" />
+              </Link>
 
-              {analysisLimitFull ? (
-                <button
-                  type="button"
-                  onClick={() => setLimitModalType('analysis')}
-                  className="w-full p-3.5 rounded-xl btn-limit-locked flex items-center justify-between text-left"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-lg bg-amber-500/20 border border-amber-500/40 flex items-center justify-center">
-                      <AlertCircle className="w-4 h-4 text-amber-400" />
-                    </div>
-                    <div>
-                      <strong className="text-xs font-bold text-white block">
-                        AI Resume Analyzer (!)
-                      </strong>
-                      <span className="text-[11px] text-amber-300">
-                        Weekly limit reached — click to view reset timer
-                      </span>
-                    </div>
+              <Link
+                to="/analyzer"
+                className="p-3.5 rounded-xl bg-space-850/90 hover:bg-space-800 border border-blue-500/20 hover:border-electric-500/40 flex items-center justify-between transition-all group"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-lg bg-emerald-600/20 border border-emerald-500/30 flex items-center justify-center">
+                    <FileSearch className="w-4 h-4 text-emerald-400" />
                   </div>
-                  <span className="px-2 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-500/40 font-black text-xs">
-                    !
-                  </span>
-                </button>
-              ) : (
-                <Link
-                  to="/analyzer"
-                  className="p-3.5 rounded-xl bg-[#001845]/90 hover:bg-[#002855] border border-[#33415c]/60 hover:border-[#0466c8]/60 flex items-center justify-between transition-all group"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-lg bg-emerald-600/20 border border-emerald-500/30 flex items-center justify-center">
-                      <FileSearch className="w-4 h-4 text-emerald-400" />
-                    </div>
-                    <div>
-                      <strong className="text-xs font-bold text-white block">AI Resume Analyzer</strong>
-                      <span className="text-[11px] text-[#979dac]">
-                        {quota.analysesRemaining} of {quota.analysesLimit} weekly analyses remaining
-                      </span>
-                    </div>
+                  <div>
+                    <strong className="text-xs font-bold text-white block">AI Resume Analyzer</strong>
+                    <span className="text-[11px] text-slate-400">
+                      {quota.analysesRemaining} of {quota.analysesLimit} weekly analyses remaining
+                    </span>
                   </div>
-                  <ArrowRight className="w-4 h-4 text-[#979dac] group-hover:text-white group-hover:translate-x-0.5 transition-all" />
-                </Link>
-              )}
+                </div>
+                <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-white group-hover:translate-x-0.5 transition-all" />
+              </Link>
             </div>
           </div>
 
-          <div className="p-3 rounded-xl bg-[#001233]/80 border border-[#33415c]/50 flex items-center justify-between text-xs">
-            <span className="text-[#979dac] flex items-center gap-1.5">
+          <div className="p-3 rounded-xl bg-space-900/80 border border-blue-500/15 flex items-center justify-between text-xs">
+            <span className="text-slate-400 flex items-center gap-1.5">
               <Shield className="w-3.5 h-3.5 text-emerald-400" />
               <span>Session encrypted & protected</span>
             </span>
-            <Link to="/resumes" className="text-[#3b9eff] hover:text-white font-semibold">
+            <Link to="/resumes" className="text-electric-400 hover:text-white font-semibold">
               Manage Resumes
             </Link>
           </div>
-        </GlassSurface>
+        </div>
       </div>
 
       {/* Data Privacy & Protection Guarantees */}
-      <GlassSurface borderRadius={22} className="p-6 space-y-4">
+      <div className="glass-panel p-6 rounded-2xl space-y-4">
         <h3 className="text-sm font-bold text-white flex items-center gap-2">
-          <Lock className="w-4 h-4 text-[#3b9eff]" />
+          <Lock className="w-4 h-4 text-electric-400" />
           <span>Your Privacy & Data Guarantees</span>
         </h3>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs text-[#979dac]">
-          <div className="p-4 rounded-xl bg-[#001845]/80 border border-[#33415c]/60">
-            <strong className="block text-white mb-1">In-Browser Document Parsing</strong>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs text-slate-400">
+          <div className="p-4 rounded-xl bg-space-850/80 border border-blue-500/20">
+            <strong className="block text-slate-200 mb-1">In-Browser Document Parsing</strong>
             <p className="leading-relaxed">
               Your PDF and Word documents are converted to text directly on your device. Raw files are never uploaded or stored.
             </p>
           </div>
-          <div className="p-4 rounded-xl bg-[#001845]/80 border border-[#33415c]/60">
-            <strong className="block text-white mb-1">Private Workspace</strong>
+          <div className="p-4 rounded-xl bg-space-850/80 border border-blue-500/20">
+            <strong className="block text-slate-200 mb-1">Private Workspace</strong>
             <p className="leading-relaxed">
               Your saved resumes and ATS evaluation reports are isolated to your personal account and can be deleted anytime.
             </p>
           </div>
-          <div className="p-4 rounded-xl bg-[#001845]/80 border border-[#33415c]/60">
-            <strong className="block text-white mb-1">Authentic AI Coaching</strong>
+          <div className="p-4 rounded-xl bg-space-850/80 border border-blue-500/20">
+            <strong className="block text-slate-200 mb-1">Authentic AI Coaching</strong>
             <p className="leading-relaxed">
               AI suggestions enhance your real achievements with stronger verbs without fabricating credentials.
             </p>
           </div>
         </div>
-      </GlassSurface>
+      </div>
     </div>
   );
 }

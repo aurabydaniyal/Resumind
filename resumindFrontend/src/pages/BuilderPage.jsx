@@ -336,11 +336,6 @@ export default function BuilderPage() {
   };
 
   const handleSave = async () => {
-    if (!resumeId && quota.resumesRemaining <= 0) {
-      setLimitModalOpen(true);
-      return;
-    }
-
     setSaving(true);
     setSaveMessage('');
     setErrorMessage('');
@@ -541,34 +536,19 @@ export default function BuilderPage() {
           </button>
 
           {/* Save Button */}
-          {!resumeId && quota.resumesRemaining <= 0 ? (
-            <button
-              type="button"
-              onClick={() => setLimitModalOpen(true)}
-              className="h-9 px-2 sm:px-3.5 rounded-xl text-[11px] sm:text-xs font-bold btn-limit-locked flex items-center justify-center gap-1 whitespace-nowrap"
-              title="Weekly new resume limit reached — click to view reset timer"
-            >
-              <AlertCircle className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-              <span>Save</span>
-              <span className="px-1 rounded bg-amber-950/90 text-amber-300 border border-amber-500/40 font-black">
-                !
-              </span>
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={handleSave}
-              disabled={saving}
-              className="h-9 px-2 sm:px-4 rounded-xl text-[11px] sm:text-xs font-semibold text-white bg-space-800 hover:bg-space-700 border border-blue-500/30 flex items-center justify-center gap-1 transition-all whitespace-nowrap"
-            >
-              {saving ? (
-                <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0" />
-              ) : (
-                <Save className="w-3.5 h-3.5 shrink-0" />
-              )}
-              <span>{saving ? '...' : 'Save'}</span>
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={saving}
+            className="h-9 px-2 sm:px-4 rounded-xl text-[11px] sm:text-xs font-semibold text-white bg-space-800 hover:bg-space-700 border border-blue-500/30 flex items-center justify-center gap-1 transition-all whitespace-nowrap"
+          >
+            {saving ? (
+              <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0" />
+            ) : (
+              <Save className="w-3.5 h-3.5 shrink-0" />
+            )}
+            <span>{saving ? '...' : 'Save'}</span>
+          </button>
 
           {/* PDF Export Button */}
           <button
