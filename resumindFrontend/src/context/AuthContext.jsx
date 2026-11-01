@@ -64,6 +64,23 @@ export function AuthProvider({ children }) {
     setUser(null);
   };
 
+  const refreshUser = async () => {
+    try {
+      const response = await api.getMe();
+      if (response?.data?.user) {
+        setUser(response.data.user);
+      }
+      return response?.data?.user;
+    } catch {
+      return null;
+    }
+  };
+
+  const updateQuota = (newQuota) => {
+    if (!newQuota) return;
+    setUser((prev) => (prev ? { ...prev, weeklyQuota: newQuota } : prev));
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -73,7 +90,9 @@ export function AuthProvider({ children }) {
         loading,
         login,
         register,
-        logout
+        logout,
+        refreshUser,
+        updateQuota
       }}
     >
       {children}

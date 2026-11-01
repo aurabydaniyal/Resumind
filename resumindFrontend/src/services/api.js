@@ -3,9 +3,7 @@ function normalizeBaseUrl(rawUrl) {
     return 'http://localhost:5000/api/v1';
   }
   let clean = rawUrl.trim().replace(/\/+$/, '');
-  // Auto-strip /health or /api/v1/health if accidentally pasted
   clean = clean.replace(/\/health$/, '');
-  // Ensure the route prefix /api/v1 is present
   if (!clean.endsWith('/api/v1')) {
     clean = `${clean}/api/v1`;
   }
@@ -13,11 +11,9 @@ function normalizeBaseUrl(rawUrl) {
 }
 
 function resolveBaseUrl() {
-  // 1. Injected at Vite build time via vite.config.js define
   if (typeof __APP_API_URL__ !== 'undefined' && __APP_API_URL__) {
     return normalizeBaseUrl(__APP_API_URL__);
   }
-  // 2. Standard Vite runtime import.meta.env
   const metaEnv = typeof import.meta !== 'undefined' && import.meta.env ? import.meta.env : {};
   const candidate =
     metaEnv.VITE_API_BASE_URL ||
@@ -66,13 +62,18 @@ async function request(endpoint, options = {}) {
       const error = new Error(errorMessage);
       error.status = response.status;
       error.details = data?.details;
+      error.code = data?.code;
+      error.limitType = data?.limitType;
+      error.quota = data?.quota;
       throw error;
     }
 
     return data;
   } catch (err) {
     if (err.name === 'TypeError' && err.message.includes('Failed to fetch')) {
-      const connectionError = new Error('Unable to reach the service right now. Please check your internet connection and try again.');
+      const connectionError = new Error(
+        'Unable to reach the service right now. Please check your internet connection and try again.'
+      );
       connectionError.status = 503;
       throw connectionError;
     }
@@ -81,10 +82,8 @@ async function request(endpoint, options = {}) {
 }
 
 export const api = {
-  // System Health
   getHealth: () => request('/health'),
 
-  // Authentication
   register: (payload) =>
     request('/auth/register', {
       method: 'POST',
@@ -99,7 +98,6 @@ export const api = {
 
   getMe: () => request('/auth/me'),
 
-  // Resumes
   listResumes: () => request('/resumes'),
   getResume: (id) => request(`/resumes/${id}`),
   createResume: (payload) =>
@@ -117,7 +115,6 @@ export const api = {
       method: 'DELETE'
     }),
 
-  // AI Operations
   analyzeResume: (payload) =>
     request('/ai/analyze-resume', {
       method: 'POST',
@@ -129,7 +126,6 @@ export const api = {
       body: JSON.stringify(payload)
     }),
 
-  // Analysis History
   listAnalyses: () => request('/analyses'),
   getAnalysis: (id) => request(`/analyses/${id}`),
   deleteAnalysis: (id) =>

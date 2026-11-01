@@ -29,6 +29,7 @@ async function register(req, res, next) {
     }
 
     const user = await User.create(validated);
+    await user.syncWeeklyQuota();
     const token = generateToken(user);
 
     res.status(201).json({
@@ -69,6 +70,7 @@ async function login(req, res, next) {
       });
     }
 
+    await user.syncWeeklyQuota();
     const token = generateToken(user);
 
     res.status(200).json({
@@ -95,10 +97,13 @@ async function getMe(req, res, next) {
       });
     }
 
+    await user.syncWeeklyQuota();
+
     res.status(200).json({
       success: true,
       data: {
-        user: user.toJSON()
+        user: user.toJSON(),
+        quota: user.getQuotaSummary()
       }
     });
   } catch (error) {

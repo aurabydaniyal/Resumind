@@ -1,4 +1,5 @@
 const Resume = require('../models/Resume');
+const User = require('../models/User');
 const { resumeCreateSchema, resumeUpdateSchema } = require('../validators/resumeValidators');
 const { connectDB } = require('../config/db');
 
@@ -7,15 +8,40 @@ async function createResume(req, res, next) {
     const validated = resumeCreateSchema.parse(req.body);
     await connectDB();
 
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: 'User account not found.'
+      });
+    }
+
+    const quota = await user.syncWeeklyQuota();
+    if (quota.resumesRemaining <= 0) {
+      return res.status(429).json({
+        success: false,
+        code: 'WEEKLY_LIMIT_REACHED',
+        limitType: 'resume',
+        error: 'You have reached your weekly limit of 10 new resumes. Your quota will automatically reset when the timer completes.',
+        quota
+      });
+    }
+
     const resume = await Resume.create({
       ...validated,
       userId: req.user.id
     });
 
+    user.weeklyUsage.resumesCreated = (user.weeklyUsage.resumesCreated || 0) + 1;
+    await user.save();
+
     res.status(201).json({
       success: true,
       message: 'Resume created successfully',
-      data: { resume }
+      data: {
+        resume,
+        quota: user.getQuotaSummary()
+      }
     });
   } catch (error) {
     next(error);

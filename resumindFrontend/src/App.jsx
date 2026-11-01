@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-route
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import Galaxy from './components/react-bits/Galaxy';
 
 // Pages
 import LandingPage from './pages/LandingPage';
@@ -23,9 +24,9 @@ function ProtectedRoute({ children }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-space-950 text-slate-400">
+      <div className="min-h-screen flex items-center justify-center bg-[#001233] text-[#979dac]">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 rounded-full border-2 border-electric-500 border-t-transparent animate-spin" />
+          <div className="w-8 h-8 rounded-full border-2 border-[#0466c8] border-t-transparent animate-spin" />
           <p className="text-xs font-medium tracking-wide">Authenticating session...</p>
         </div>
       </div>
@@ -44,9 +45,12 @@ export default function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
-        <div className="flex flex-col min-h-screen bg-space-950 text-slate-100 selection:bg-electric-600 selection:text-white antialiased">
+        <div className="relative flex flex-col min-h-screen bg-[#001233] text-slate-100 selection:bg-[#0466c8] selection:text-white antialiased">
+          {/* @react-bits/Galaxy-JS-CSS Global Celestial Background */}
+          <Galaxy density={135} speed={0.22} glowIntensity={0.6} />
+
           <Navbar />
-          <main className="flex-1">
+          <main className="relative z-10 flex-1">
             <Routes>
               {/* Public Routes */}
               <Route path="/" element={<LandingPage />} />

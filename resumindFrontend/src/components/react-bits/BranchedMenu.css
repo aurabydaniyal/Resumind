@@ -1,0 +1,176 @@
+/* @react-bits/BranchedMenu-JS-CSS — Interactive Tree-Branching Sidebar Menu */
+.rb-branched-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  background: rgba(0, 18, 51, 0.72);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  animation: rb-fade-in 0.22s ease forwards;
+}
+
+.rb-branched-sidebar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(340px, 88vw);
+  z-index: 95;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 22px 20px;
+  background: linear-gradient(
+    165deg,
+    rgba(0, 40, 85, 0.92) 0%,
+    rgba(0, 24, 69, 0.96) 55%,
+    rgba(0, 18, 51, 0.98) 100%
+  );
+  border-left: 1px solid rgba(4, 102, 200, 0.38);
+  box-shadow:
+    -16px 0 48px rgba(0, 18, 51, 0.85),
+    inset 1px 0 0 rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(22px) saturate(170%);
+  -webkit-backdrop-filter: blur(22px) saturate(170%);
+  overflow-y: auto;
+  animation: rb-slide-left 0.28s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes rb-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes rb-slide-left {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+/* Main Trunk Spine */
+.rb-branch-group {
+  position: relative;
+  margin-top: 14px;
+}
+
+.rb-branch-group__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: rgba(2, 62, 125, 0.24);
+  border: 1px solid rgba(151, 157, 172, 0.18);
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.rb-branch-group__header:hover {
+  border-color: rgba(4, 102, 200, 0.5);
+  background: rgba(4, 102, 200, 0.22);
+}
+
+.rb-branch-tree {
+  position: relative;
+  margin-left: 16px;
+  padding-left: 18px;
+  margin-top: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Vertical glowing trunk line */
+.rb-branch-tree::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 18px;
+  width: 2px;
+  background: linear-gradient(180deg, #0466c8 0%, #0353a4 70%, rgba(51, 65, 92, 0.35) 100%);
+  box-shadow: 0 0 8px rgba(4, 102, 200, 0.55);
+  border-radius: 2px;
+}
+
+.rb-branch-node {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* Curved horizontal branch connector */
+.rb-branch-node::before {
+  content: '';
+  position: absolute;
+  left: -18px;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  transform: translateY(-100%);
+  border-left: 2px solid #0466c8;
+  border-bottom: 2px solid #0466c8;
+  border-bottom-left-radius: 10px;
+  opacity: 0.75;
+  transition: border-color 0.2s ease, opacity 0.2s ease;
+}
+
+/* Glowing node dot at branch junction */
+.rb-branch-node::after {
+  content: '';
+  position: absolute;
+  left: -6px;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  transform: translateY(-50%);
+  background: #33415c;
+  border: 1.5px solid #0466c8;
+  transition: all 0.22s ease;
+}
+
+.rb-branch-node:hover::after,
+.rb-branch-node--active::after {
+  background: #3b9eff;
+  border-color: #ffffff;
+  box-shadow: 0 0 10px #0466c8;
+  transform: translateY(-50%) scale(1.25);
+}
+
+.rb-branch-link {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 12px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #979dac;
+  background: rgba(0, 24, 69, 0.45);
+  border: 1px solid rgba(151, 157, 172, 0.14);
+  transition: all 0.22s ease;
+  text-decoration: none;
+}
+
+.rb-branch-link:hover {
+  color: #ffffff;
+  background: rgba(4, 102, 200, 0.22);
+  border-color: rgba(4, 102, 200, 0.45);
+  transform: translateX(3px);
+}
+
+.rb-branch-link--active {
+  color: #ffffff;
+  background: linear-gradient(135deg, rgba(4, 102, 200, 0.48) 0%, rgba(3, 83, 164, 0.38) 100%);
+  border-color: rgba(59, 158, 255, 0.65);
+  box-shadow: 0 0 18px rgba(4, 102, 200, 0.35);
+}
+

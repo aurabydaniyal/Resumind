@@ -1,11 +1,30 @@
 const aiProvider = require('../services/aiProvider');
 const Analysis = require('../models/Analysis');
+const User = require('../models/User');
 const { analyzeResumeSchema, improveResumeSchema } = require('../validators/aiValidators');
 const { connectDB } = require('../config/db');
 
 async function analyzeResume(req, res, next) {
   try {
     const validated = analyzeResumeSchema.parse(req.body);
+
+    let user = null;
+    if (req.user && req.user.id) {
+      await connectDB();
+      user = await User.findById(req.user.id);
+      if (user) {
+        const quota = await user.syncWeeklyQuota();
+        if (quota.analysesRemaining <= 0) {
+          return res.status(429).json({
+            success: false,
+            code: 'WEEKLY_LIMIT_REACHED',
+            limitType: 'analysis',
+            error: 'You have reached your weekly limit of 10 ATS resume analyses. Your quota will automatically reset when the timer completes.',
+            quota
+          });
+        }
+      }
+    }
 
     const result = await aiProvider.analyzeResume({
       resumeText: validated.resumeText,
@@ -14,12 +33,12 @@ async function analyzeResume(req, res, next) {
     });
 
     let savedAnalysis = null;
-    // If user is authenticated, save the analysis for history tracking
-    if (req.user && req.user.id) {
+    let updatedQuota = null;
+
+    if (user) {
       try {
-        await connectDB();
         savedAnalysis = await Analysis.create({
-          userId: req.user.id,
+          userId: user._id,
           resumeId: validated.resumeId || undefined,
           resumeTitle: validated.resumeTitle || 'Uploaded Resume Analysis',
           targetRole: validated.targetRole || '',
@@ -32,6 +51,10 @@ async function analyzeResume(req, res, next) {
           rewriteSuggestions: result.rewriteSuggestions,
           disclaimer: result.disclaimer
         });
+
+        user.weeklyUsage.analysesRun = (user.weeklyUsage.analysesRun || 0) + 1;
+        await user.save();
+        updatedQuota = user.getQuotaSummary();
       } catch (dbErr) {
         console.warn('Could not auto-save analysis record to DB:', dbErr.message);
       }
@@ -42,7 +65,8 @@ async function analyzeResume(req, res, next) {
       message: 'Resume analyzed successfully',
       data: {
         analysis: result,
-        analysisId: savedAnalysis ? savedAnalysis._id : null
+        analysisId: savedAnalysis ? savedAnalysis._id : null,
+        ...(updatedQuota && { quota: updatedQuota })
       }
     });
   } catch (error) {

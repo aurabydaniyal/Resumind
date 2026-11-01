@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 import { downloadResumePdf } from '../components/pdf/ResumePdfDocument';
 import ClassicTemplate from '../components/templates/ClassicTemplate';
@@ -9,6 +10,7 @@ import ExecutiveTemplate from '../components/templates/ExecutiveTemplate';
 import CreativeTemplate from '../components/templates/CreativeTemplate';
 import A4ResumeViewport from '../components/templates/A4ResumeViewport';
 import ColorPickerPopover from '../components/templates/ColorPickerPopover';
+import WeeklyLimitModal from '../components/WeeklyLimitModal';
 import { RESUME_TEMPLATES } from '../components/templates/themeUtils';
 import {
   Save,
@@ -28,7 +30,8 @@ import {
   Check,
   X,
   HelpCircle,
-  AlertCircle
+  AlertCircle,
+  Timer
 } from 'lucide-react';
 
 const INITIAL_RESUME_STATE = {
@@ -83,6 +86,7 @@ export default function BuilderPage() {
   const [searchParams] = useSearchParams();
   const resumeId = searchParams.get('id');
   const navigate = useNavigate();
+  const { user, updateQuota, refreshUser } = useAuth();
 
   const [resume, setResume] = useState(INITIAL_RESUME_STATE);
   const [activeTab, setActiveTab] = useState('personal');
@@ -93,11 +97,25 @@ export default function BuilderPage() {
   const [saveMessage, setSaveMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
+  // Weekly Limit Popup Modal State
+  const [limitModalOpen, setLimitModalOpen] = useState(false);
+  const [limitQuota, setLimitQuota] = useState(null);
+
   // AI Modal State
   const [aiModalOpen, setAiModalOpen] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
   const [aiSuggestions, setAiSuggestions] = useState(null);
   const [aiTargetJob, setAiTargetJob] = useState('');
+
+  const quota = user?.weeklyQuota || {
+    resumesLimit: 10,
+    resumesUsed: 0,
+    resumesRemaining: 10
+  };
+
+  useEffect(() => {
+    refreshUser();
+  }, [refreshUser]);
 
   // Fetch resume if editing existing
   useEffect(() => {
@@ -318,6 +336,11 @@ export default function BuilderPage() {
   };
 
   const handleSave = async () => {
+    if (!resumeId && quota.resumesRemaining <= 0) {
+      setLimitModalOpen(true);
+      return;
+    }
+
     setSaving(true);
     setSaveMessage('');
     setErrorMessage('');
@@ -328,13 +351,24 @@ export default function BuilderPage() {
         setSaveMessage('Resume saved successfully!');
       } else {
         const res = await api.createResume(resume);
+        if (res?.data?.quota) {
+          updateQuota(res.data.quota);
+        }
         if (res?.data?.resume?._id) {
           setSaveMessage('Resume created and saved!');
           navigate(`/builder?id=${res.data.resume._id}`, { replace: true });
         }
       }
     } catch (err) {
-      setErrorMessage(err.message || 'Could not save resume to server.');
+      if (err.code === 'WEEKLY_LIMIT_REACHED' || (err.status === 429 && err.quota)) {
+        if (err.quota) {
+          updateQuota(err.quota);
+          setLimitQuota(err.quota);
+        }
+        setLimitModalOpen(true);
+      } else {
+        setErrorMessage(err.message || 'Could not save resume to server.');
+      }
     } finally {
       setSaving(false);
       setTimeout(() => setSaveMessage(''), 4000);
@@ -409,17 +443,45 @@ export default function BuilderPage() {
 
   return (
     <div className="max-w-[1600px] mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-4 sm:space-y-6 radial-bg">
+      {/* Weekly Limit Reached Popup Modal */}
+      <WeeklyLimitModal
+        open={limitModalOpen}
+        onClose={() => setLimitModalOpen(false)}
+        limitType="resume"
+        quota={limitQuota || user?.weeklyQuota}
+      />
+
       {/* Compact Top Controls Toolbar */}
       <div className="glass-panel p-2.5 sm:p-3.5 rounded-2xl flex flex-col gap-2.5 lg:sticky lg:top-16 z-30">
-        {/* Row 1: Title + Template Switcher */}
+        {/* Row 1: Title + Weekly Quota Pill + Template Switcher */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <input
-            type="text"
-            value={resume.title}
-            onChange={(e) => setResume({ ...resume, title: e.target.value })}
-            className="w-full sm:w-56 h-9 bg-space-900/90 border border-blue-500/30 rounded-xl px-3 text-xs sm:text-sm font-bold text-white focus:outline-none focus:border-electric-500"
-            placeholder="Resume Title"
-          />
+          <div className="flex items-center gap-2">
+            <input
+              type="text"
+              value={resume.title}
+              onChange={(e) => setResume({ ...resume, title: e.target.value })}
+              className="w-full sm:w-56 h-9 bg-space-900/90 border border-blue-500/30 rounded-xl px-3 text-xs sm:text-sm font-bold text-white focus:outline-none focus:border-electric-500"
+              placeholder="Resume Title"
+            />
+            {!resumeId && (
+              <button
+                type="button"
+                onClick={() => {
+                  if (quota.resumesRemaining <= 0) setLimitModalOpen(true);
+                }}
+                className="shrink-0 h-9 px-2.5 rounded-xl bg-space-900/90 border border-blue-500/20 text-[11px] font-semibold text-slate-300 flex items-center gap-1.5"
+                title="Weekly new resume creation limit"
+              >
+                <Timer className="w-3.5 h-3.5 text-electric-400 shrink-0" />
+                <span>
+                  <strong className={quota.resumesRemaining > 0 ? 'text-electric-400' : 'text-amber-400'}>
+                    {quota.resumesRemaining}/{quota.resumesLimit}
+                  </strong>{' '}
+                  <span className="hidden sm:inline">weekly builds left</span>
+                </span>
+              </button>
+            )}
+          </div>
 
           <div className="flex items-center gap-1 bg-space-900/90 p-1 rounded-xl border border-blue-500/20 text-[11px] sm:text-xs overflow-x-auto no-scrollbar">
             {RESUME_TEMPLATES.map((tmpl) => (
@@ -479,19 +541,34 @@ export default function BuilderPage() {
           </button>
 
           {/* Save Button */}
-          <button
-            type="button"
-            onClick={handleSave}
-            disabled={saving}
-            className="h-9 px-2 sm:px-4 rounded-xl text-[11px] sm:text-xs font-semibold text-white bg-space-800 hover:bg-space-700 border border-blue-500/30 flex items-center justify-center gap-1 transition-all whitespace-nowrap"
-          >
-            {saving ? (
-              <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0" />
-            ) : (
-              <Save className="w-3.5 h-3.5 shrink-0" />
-            )}
-            <span>{saving ? '...' : 'Save'}</span>
-          </button>
+          {!resumeId && quota.resumesRemaining <= 0 ? (
+            <button
+              type="button"
+              onClick={() => setLimitModalOpen(true)}
+              className="h-9 px-2 sm:px-3.5 rounded-xl text-[11px] sm:text-xs font-bold btn-limit-locked flex items-center justify-center gap-1 whitespace-nowrap"
+              title="Weekly new resume limit reached — click to view reset timer"
+            >
+              <AlertCircle className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+              <span>Save</span>
+              <span className="px-1 rounded bg-amber-950/90 text-amber-300 border border-amber-500/40 font-black">
+                !
+              </span>
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={handleSave}
+              disabled={saving}
+              className="h-9 px-2 sm:px-4 rounded-xl text-[11px] sm:text-xs font-semibold text-white bg-space-800 hover:bg-space-700 border border-blue-500/30 flex items-center justify-center gap-1 transition-all whitespace-nowrap"
+            >
+              {saving ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0" />
+              ) : (
+                <Save className="w-3.5 h-3.5 shrink-0" />
+              )}
+              <span>{saving ? '...' : 'Save'}</span>
+            </button>
+          )}
 
           {/* PDF Export Button */}
           <button
