@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { Link } from 'react-router-dom';
-import { Clock, ShieldAlert, X, Sparkles, Calendar } from 'lucide-react';
+import { Clock, ShieldAlert, X, Calendar } from 'lucide-react';
 
-export function formatRemainingTime(resetAtIso) {
-  if (!resetAtIso) return { days: 0, hours: 0, minutes: 0, seconds: 0, expired: true };
-  const diff = new Date(resetAtIso).getTime() - Date.now();
+const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+
+export function formatRemainingTime(targetMs) {
+  if (!targetMs) return { days: 0, hours: 0, minutes: 0, seconds: 0, expired: true };
+  const diff = Math.max(0, targetMs - Date.now());
   if (diff <= 0) {
     return { days: 0, hours: 0, minutes: 0, seconds: 0, expired: true };
   }
@@ -17,14 +19,38 @@ export function formatRemainingTime(resetAtIso) {
 }
 
 export default function WeeklyLimitModal({ open, onClose, limitType = 'resume', quota }) {
-  const [countdown, setCountdown] = useState(() => formatRemainingTime(quota?.resetAt));
+  const fallbackTargetRef = useRef(Date.now() + ONE_WEEK_MS);
+
+  const getTargetTimestamp = () => {
+    if (quota?.resetAt) {
+      const parsed = new Date(quota.resetAt).getTime();
+      if (!Number.isNaN(parsed) && parsed > Date.now()) {
+        return parsed;
+      }
+    }
+    return fallbackTargetRef.current;
+  };
+
+  const [countdown, setCountdown] = useState(() => formatRemainingTime(getTargetTimestamp()));
 
   useEffect(() => {
-    if (!open || !quota?.resetAt) return;
-    setCountdown(formatRemainingTime(quota.resetAt));
-    const timer = setInterval(() => {
-      setCountdown(formatRemainingTime(quota.resetAt));
-    }, 1000);
+    if (!open) return;
+    if (quota?.resetAt) {
+      const parsed = new Date(quota.resetAt).getTime();
+      if (!Number.isNaN(parsed) && parsed > Date.now()) {
+        fallbackTargetRef.current = parsed;
+      }
+    }
+
+    const tick = () => {
+      const targetMs = quota?.resetAt
+        ? new Date(quota.resetAt).getTime()
+        : fallbackTargetRef.current;
+      setCountdown(formatRemainingTime(targetMs));
+    };
+
+    tick();
+    const timer = setInterval(tick, 1000);
     return () => clearInterval(timer);
   }, [open, quota?.resetAt]);
 
@@ -36,8 +62,12 @@ export default function WeeklyLimitModal({ open, onClose, limitType = 'resume', 
     : 'Weekly ATS Analysis Limit Reached';
 
   const subtitle = isResume
-    ? 'You have built 10 out of 10 new resumes included in your weekly allocation. You can still edit and export your existing saved resumes anytime.'
-    : 'You have completed 10 out of 10 AI resume evaluations for this week. Please return once your weekly counter resets below.';
+    ? 'You have built 10 out of 10 new resumes included in your weekly allocation. You can still edit and export your existing saved resumes anytime, or come back when your weekly limit resets.'
+    : 'You have completed 10 out of 10 AI resume evaluations for this week. Please come back once your weekly limit resets below.';
+
+  const resetDateDisplay = quota?.resetAt
+    ? new Date(quota.resetAt).toLocaleString()
+    : new Date(fallbackTargetRef.current).toLocaleString();
 
   return createPortal(
     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-space-950/85 backdrop-blur-md">
@@ -69,11 +99,11 @@ export default function WeeklyLimitModal({ open, onClose, limitType = 'resume', 
         {/* Live Countdown Timer Boxes */}
         <div className="p-4 rounded-2xl bg-space-900/90 border border-blue-500/25 space-y-2.5">
           <span className="text-[11px] font-bold uppercase tracking-wider text-electric-400 block">
-            Quota Resets Automatically In
+            Come Back In — Live Reset Timer
           </span>
           <div className="grid grid-cols-4 gap-2 text-center">
             <div className="p-2.5 rounded-xl bg-space-850 border border-blue-500/20">
-              <strong className="text-xl sm:text-2xl font-black text-white block leading-none">
+              <strong className="text-xl sm:text-2xl font-black font-mono text-white block leading-none">
                 {String(countdown.days).padStart(2, '0')}
               </strong>
               <span className="text-[10px] uppercase tracking-wider text-slate-400 mt-1 block">
@@ -81,7 +111,7 @@ export default function WeeklyLimitModal({ open, onClose, limitType = 'resume', 
               </span>
             </div>
             <div className="p-2.5 rounded-xl bg-space-850 border border-blue-500/20">
-              <strong className="text-xl sm:text-2xl font-black text-white block leading-none">
+              <strong className="text-xl sm:text-2xl font-black font-mono text-white block leading-none">
                 {String(countdown.hours).padStart(2, '0')}
               </strong>
               <span className="text-[10px] uppercase tracking-wider text-slate-400 mt-1 block">
@@ -89,7 +119,7 @@ export default function WeeklyLimitModal({ open, onClose, limitType = 'resume', 
               </span>
             </div>
             <div className="p-2.5 rounded-xl bg-space-850 border border-blue-500/20">
-              <strong className="text-xl sm:text-2xl font-black text-white block leading-none">
+              <strong className="text-xl sm:text-2xl font-black font-mono text-white block leading-none">
                 {String(countdown.minutes).padStart(2, '0')}
               </strong>
               <span className="text-[10px] uppercase tracking-wider text-slate-400 mt-1 block">
@@ -97,7 +127,7 @@ export default function WeeklyLimitModal({ open, onClose, limitType = 'resume', 
               </span>
             </div>
             <div className="p-2.5 rounded-xl bg-space-850 border border-blue-500/20">
-              <strong className="text-xl sm:text-2xl font-black text-electric-400 block leading-none">
+              <strong className="text-xl sm:text-2xl font-black font-mono text-electric-400 block leading-none">
                 {String(countdown.seconds).padStart(2, '0')}
               </strong>
               <span className="text-[10px] uppercase tracking-wider text-slate-400 mt-1 block">
@@ -105,12 +135,10 @@ export default function WeeklyLimitModal({ open, onClose, limitType = 'resume', 
               </span>
             </div>
           </div>
-          {quota?.resetAt && (
-            <div className="text-[11px] text-slate-400 flex items-center justify-center gap-1.5 pt-1">
-              <Calendar className="w-3 h-3 text-electric-400" />
-              <span>Resets on {new Date(quota.resetAt).toLocaleString()}</span>
-            </div>
-          )}
+          <div className="text-[11px] text-slate-400 flex items-center justify-center gap-1.5 pt-1">
+            <Calendar className="w-3 h-3 text-electric-400" />
+            <span>Resets on {resetDateDisplay}</span>
+          </div>
         </div>
 
         <div className="flex flex-col sm:flex-row items-center gap-2.5">
@@ -119,7 +147,7 @@ export default function WeeklyLimitModal({ open, onClose, limitType = 'resume', 
             onClick={onClose}
             className="w-full sm:w-1/2 py-2.5 px-4 rounded-xl text-xs font-semibold text-slate-200 bg-space-850 hover:bg-space-800 border border-blue-500/25 transition-all"
           >
-            View Quota Status
+            View Quota Info
           </Link>
           <button
             type="button"
@@ -134,4 +162,3 @@ export default function WeeklyLimitModal({ open, onClose, limitType = 'resume', 
     document.body
   );
 }
-

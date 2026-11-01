@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { api, setAuthToken } from '../services/api';
 
 const AuthContext = createContext(null);
@@ -7,6 +7,12 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(() => localStorage.getItem('resumind_token'));
   const [loading, setLoading] = useState(true);
+
+  const logout = useCallback(() => {
+    setAuthToken(null);
+    setToken(null);
+    setUser(null);
+  }, []);
 
   useEffect(() => {
     async function loadUser() {
@@ -21,12 +27,10 @@ export function AuthProvider({ children }) {
         if (response?.data?.user) {
           setUser(response.data.user);
         } else {
-          // Token invalid or expired
           logout();
         }
       } catch (err) {
         console.warn('Session verification notice:', err.message);
-        // Only clear if auth error (401), not network error
         if (err.status === 401) {
           logout();
         }
@@ -36,9 +40,9 @@ export function AuthProvider({ children }) {
     }
 
     loadUser();
-  }, []);
+  }, [logout]);
 
-  const login = async (email, password) => {
+  const login = useCallback(async (email, password) => {
     const res = await api.login({ email, password });
     if (res?.data?.token) {
       setAuthToken(res.data.token);
@@ -46,9 +50,9 @@ export function AuthProvider({ children }) {
       setUser(res.data.user);
     }
     return res;
-  };
+  }, []);
 
-  const register = async (name, email, password) => {
+  const register = useCallback(async (name, email, password) => {
     const res = await api.register({ name, email, password });
     if (res?.data?.token) {
       setAuthToken(res.data.token);
@@ -56,15 +60,9 @@ export function AuthProvider({ children }) {
       setUser(res.data.user);
     }
     return res;
-  };
+  }, []);
 
-  const logout = () => {
-    setAuthToken(null);
-    setToken(null);
-    setUser(null);
-  };
-
-  const refreshUser = async () => {
+  const refreshUser = useCallback(async () => {
     try {
       const response = await api.getMe();
       if (response?.data?.user) {
@@ -74,12 +72,12 @@ export function AuthProvider({ children }) {
     } catch {
       return null;
     }
-  };
+  }, []);
 
-  const updateQuota = (newQuota) => {
+  const updateQuota = useCallback((newQuota) => {
     if (!newQuota) return;
     setUser((prev) => (prev ? { ...prev, weeklyQuota: newQuota } : prev));
-  };
+  }, []);
 
   return (
     <AuthContext.Provider

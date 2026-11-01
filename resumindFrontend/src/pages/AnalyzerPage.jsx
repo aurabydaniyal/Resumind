@@ -72,6 +72,11 @@ export default function AnalyzerPage() {
     e.preventDefault();
     setError('');
 
+    if (quota.analysesRemaining <= 0) {
+      setLimitModalOpen(true);
+      return;
+    }
+
     if (!resumeText.trim()) {
       setError('Please upload a resume file or paste your resume text.');
       return;

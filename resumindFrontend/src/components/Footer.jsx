@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Sparkles, Shield, Cpu, Lock, ExternalLink, Heart } from 'lucide-react';
+import { Sparkles, Shield, Cpu, Lock, ExternalLink } from 'lucide-react';
 
 export default function Footer() {
   return (
@@ -13,12 +13,14 @@ export default function Footer() {
               <div className="w-8 h-8 rounded-lg bg-electric-600 flex items-center justify-center shadow-glass-glow">
                 <Sparkles className="w-4 h-4 text-white" />
               </div>
-              <span className="font-bold text-white text-base tracking-tight">Resumind AI</span>
+              <span className="font-bold text-white text-base tracking-tight">
+                Resumind <span className="text-electric-400">AI</span>
+              </span>
             </div>
             <p className="text-slate-400 text-xs leading-relaxed max-w-md">
               AI-driven resume intelligence and ATS optimization. Evaluates candidate resumes against real industry rubrics, identifies missing keywords, and formats selectable-text PDFs without fabricating career facts.
             </p>
-            <div className="flex items-center gap-4 text-xs text-slate-500">
+            <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500">
               <span className="flex items-center gap-1">
                 <Lock className="w-3.5 h-3.5 text-electric-400" /> Client-side parsing
               </span>

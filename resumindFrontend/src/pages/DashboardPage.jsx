@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 import { downloadResumePdf } from '../components/pdf/ResumePdfDocument';
@@ -10,6 +10,7 @@ import ExecutiveTemplate from '../components/templates/ExecutiveTemplate';
 import CreativeTemplate from '../components/templates/CreativeTemplate';
 import A4ResumeViewport from '../components/templates/A4ResumeViewport';
 import ColorPickerPopover from '../components/templates/ColorPickerPopover';
+import WeeklyLimitModal, { formatRemainingTime } from '../components/WeeklyLimitModal';
 import { RESUME_TEMPLATES } from '../components/templates/themeUtils';
 import { DEMO_RESUME_DATA } from '../components/templates/demoResumeData';
 import {
@@ -24,11 +25,14 @@ import {
   FileText,
   Loader2,
   Eye,
-  Timer
+  ShieldCheck
 } from 'lucide-react';
+
+const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 
 export default function DashboardPage() {
   const { user, refreshUser } = useAuth();
+  const navigate = useNavigate();
   const [resumes, setResumes] = useState([]);
   const [analyses, setAnalyses] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -38,14 +42,25 @@ export default function DashboardPage() {
   const [demoTemplate, setDemoTemplate] = useState('modern');
   const [demoColor, setDemoColor] = useState('#2563eb');
 
+  // Weekly Limit Modal state when user clicks action with 0 remaining quota
+  const [limitModalOpen, setLimitModalOpen] = useState(false);
+  const [limitModalType, setLimitModalType] = useState('resume');
+
   const quota = user?.weeklyQuota || {
     resumesLimit: 10,
     resumesUsed: 0,
     resumesRemaining: 10,
     analysesLimit: 10,
     analysesUsed: 0,
-    analysesRemaining: 10
+    analysesRemaining: 10,
+    resetAt: null
   };
+
+  const anyLimitExhausted = quota.resumesRemaining <= 0 || quota.analysesRemaining <= 0;
+  const fallbackTargetRef = useRef(Date.now() + ONE_WEEK_MS);
+  const [countdown, setCountdown] = useState(() =>
+    formatRemainingTime(quota.resetAt ? new Date(quota.resetAt).getTime() : fallbackTargetRef.current)
+  );
 
   useEffect(() => {
     refreshUser();
@@ -71,6 +86,46 @@ export default function DashboardPage() {
 
     fetchDashboardData();
   }, [refreshUser]);
+
+  // Live timer only runs when a weekly limit has run out
+  useEffect(() => {
+    if (!anyLimitExhausted) return;
+    if (quota.resetAt) {
+      const parsed = new Date(quota.resetAt).getTime();
+      if (!Number.isNaN(parsed) && parsed > Date.now()) {
+        fallbackTargetRef.current = parsed;
+      }
+    }
+
+    const tick = () => {
+      const targetMs = quota.resetAt ? new Date(quota.resetAt).getTime() : fallbackTargetRef.current;
+      setCountdown(formatRemainingTime(targetMs));
+    };
+
+    tick();
+    const timer = setInterval(tick, 1000);
+    return () => clearInterval(timer);
+  }, [anyLimitExhausted, quota.resetAt]);
+
+  const handleNewResumeClick = (e) => {
+    if (quota.resumesRemaining <= 0) {
+      e.preventDefault();
+      setLimitModalType('resume');
+      setLimitModalOpen(true);
+    } else {
+      navigate('/builder');
+    }
+  };
+
+  const handleAnalyzeResumeClick = (e) => {
+    if (quota.analysesRemaining <= 0) {
+      e.preventDefault();
+      setLimitModalType('analysis');
+      setLimitModalOpen(true);
+    } else {
+      navigate('/analyzer');
+    }
+  };
 
   const handleDownload = async (resumeId) => {
     try {
@@ -116,6 +171,14 @@ export default function DashboardPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
+      {/* Weekly Limit Modal when limit runs out */}
+      <WeeklyLimitModal
+        open={limitModalOpen}
+        onClose={() => setLimitModalOpen(false)}
+        limitType={limitModalType}
+        quota={user?.weeklyQuota}
+      />
+
       {/* Welcome Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6 pb-6 border-b border-blue-500/15">
         <div>
@@ -127,48 +190,66 @@ export default function DashboardPage() {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
-          <Link
-            to="/analyzer"
+          <button
+            type="button"
+            onClick={handleAnalyzeResumeClick}
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-200 bg-space-850 hover:bg-space-800 border border-blue-500/25 transition-all shadow-sm"
           >
             <FileSearch className="w-4 h-4 text-electric-400" />
             <span>Analyze Resume</span>
-          </Link>
-          <Link
-            to="/builder"
+          </button>
+          <button
+            type="button"
+            onClick={handleNewResumeClick}
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold text-white btn-3d"
           >
             <Plus className="w-4 h-4" />
             <span>New Resume</span>
-          </Link>
+          </button>
         </div>
       </div>
 
-      {/* Weekly Usage Quota Summary Bar */}
+      {/* Weekly Limit Left Status Bar — Live Timer only appears if a limit has run out */}
       <div className="glass-panel px-4 py-3.5 rounded-2xl mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border border-blue-500/20">
         <div className="flex items-center gap-2.5 text-xs">
           <div className="w-7 h-7 rounded-lg bg-electric-600/20 border border-electric-500/30 flex items-center justify-center shrink-0">
-            <Timer className="w-3.5 h-3.5 text-electric-400" />
+            <ShieldCheck className="w-3.5 h-3.5 text-electric-400" />
           </div>
-          <span className="text-slate-300 font-medium">
-            Weekly Quota Status:
+          <span className="text-slate-300 font-semibold">
+            Weekly Limit Left:
           </span>
         </div>
 
         <div className="flex flex-wrap items-center gap-2.5 text-xs">
           <span className="px-3 py-1 rounded-lg bg-space-900 border border-blue-500/20 text-slate-300">
-            Resume Builds: <strong className="text-electric-400">{quota.resumesRemaining}/{quota.resumesLimit} left</strong>
+            Resume Builds:{' '}
+            <strong className={quota.resumesRemaining > 0 ? 'text-electric-400' : 'text-amber-400'}>
+              {quota.resumesRemaining} / {quota.resumesLimit} left
+            </strong>
           </span>
           <span className="px-3 py-1 rounded-lg bg-space-900 border border-blue-500/20 text-slate-300">
-            AI Analyses: <strong className="text-emerald-400">{quota.analysesRemaining}/{quota.analysesLimit} left</strong>
+            AI Analyses:{' '}
+            <strong className={quota.analysesRemaining > 0 ? 'text-emerald-400' : 'text-amber-400'}>
+              {quota.analysesRemaining} / {quota.analysesLimit} left
+            </strong>
           </span>
-          <Link
-            to="/account"
-            className="text-electric-400 hover:text-white font-semibold inline-flex items-center gap-1 ml-1"
-          >
-            <span>View Reset Timer</span>
-            <ArrowRight className="w-3 h-3" />
-          </Link>
+
+          {anyLimitExhausted && (
+            <button
+              type="button"
+              onClick={() => {
+                setLimitModalType(quota.resumesRemaining <= 0 ? 'resume' : 'analysis');
+                setLimitModalOpen(true);
+              }}
+              className="px-3 py-1 rounded-lg bg-amber-950/70 border border-amber-500/35 text-amber-300 font-mono font-bold inline-flex items-center gap-1.5"
+            >
+              <Clock className="w-3.5 h-3.5 text-amber-400" />
+              <span>
+                Resets in: {String(countdown.days).padStart(2, '0')}d {String(countdown.hours).padStart(2, '0')}h{' '}
+                {String(countdown.minutes).padStart(2, '0')}m {String(countdown.seconds).padStart(2, '0')}s
+              </span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -241,13 +322,14 @@ export default function DashboardPage() {
                 <p className="text-xs text-slate-400 max-w-sm mx-auto mt-1 mb-4">
                   Start building your resume with guided sections, AI-assisted bullets, and live template previews.
                 </p>
-                <Link
-                  to="/builder"
+                <button
+                  type="button"
+                  onClick={handleNewResumeClick}
                   className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold text-white bg-electric-600 hover:bg-electric-500"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>Build First Resume</span>
-                </Link>
+                </button>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -337,13 +419,14 @@ export default function DashboardPage() {
                 <p className="text-xs text-slate-400 max-w-sm mx-auto mt-1 mb-4">
                   Upload an existing resume file to get ATS scores, identify job description keyword gaps, and receive actionable rewrites.
                 </p>
-                <Link
-                  to="/analyzer"
+                <button
+                  type="button"
+                  onClick={handleAnalyzeResumeClick}
                   className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold text-white bg-electric-600 hover:bg-electric-500"
                 >
                   <FileSearch className="w-3.5 h-3.5" />
                   <span>Run First Analysis</span>
-                </Link>
+                </button>
               </div>
             ) : (
               <div className="glass-panel rounded-xl overflow-hidden divide-y divide-space-800">

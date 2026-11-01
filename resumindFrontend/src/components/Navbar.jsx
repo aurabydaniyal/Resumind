@@ -5,7 +5,6 @@ import {
   Sparkles,
   FileSearch,
   PenTool,
-  BarChart3,
   User,
   LogOut,
   Menu,
@@ -60,8 +59,8 @@ export default function Navbar() {
                     <Sparkles className="w-4 h-4 text-electric-400 group-hover:text-white transition-colors" />
                   </div>
                 </div>
-                <span className="font-extrabold text-lg tracking-tight text-white flex items-center gap-1.5">
-                  Resumind <span className="text-electric-500 font-black text-[10px] uppercase px-1.5 py-0.5 rounded-md bg-electric-950/90 border border-electric-500/30">AI</span>
+                <span className="font-extrabold text-lg tracking-tight text-white">
+                  Resumind <span className="text-electric-400">AI</span>
                 </span>
               </Link>
 
@@ -241,7 +240,9 @@ export default function Navbar() {
                   <div className="w-8 h-8 rounded-lg bg-electric-600 flex items-center justify-center">
                     <Sparkles className="w-4 h-4 text-white" />
                   </div>
-                  <span className="font-extrabold text-white text-base">Resumind AI</span>
+                  <span className="font-extrabold text-white text-base tracking-tight">
+                    Resumind <span className="text-electric-400">AI</span>
+                  </span>
                 </div>
                 <button
                   onClick={() => setMobileMenuOpen(false)}

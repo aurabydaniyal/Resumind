@@ -336,6 +336,11 @@ export default function BuilderPage() {
   };
 
   const handleSave = async () => {
+    if (!resumeId && quota.resumesRemaining <= 0) {
+      setLimitModalOpen(true);
+      return;
+    }
+
     setSaving(true);
     setSaveMessage('');
     setErrorMessage('');

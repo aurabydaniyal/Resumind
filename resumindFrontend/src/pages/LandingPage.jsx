@@ -35,10 +35,10 @@ export default function LandingPage() {
     if (prefersReducedMotion) return;
 
     const ctx = gsap.context(() => {
-      gsap.fromTo('.hero-badge', { opacity: 0, y: -14 }, { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out', clearProps: 'all' });
-      gsap.fromTo('.hero-title', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.65, delay: 0.08, ease: 'power2.out', clearProps: 'all' });
-      gsap.fromTo('.hero-subtitle', { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.6, delay: 0.16, ease: 'power2.out', clearProps: 'all' });
-      gsap.fromTo('.hero-cta', { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.55, delay: 0.24, ease: 'power2.out', clearProps: 'all' });
+      gsap.fromTo('.hero-badge', { opacity: 0, y: -16 }, { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out', clearProps: 'all' });
+      gsap.fromTo('.hero-title', { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.8, delay: 0.12, ease: 'power2.out', clearProps: 'all' });
+      gsap.fromTo('.hero-subtitle', { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.7, delay: 0.24, ease: 'power2.out', clearProps: 'all' });
+      gsap.fromTo('.hero-cta', { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.6, delay: 0.35, ease: 'power2.out', clearProps: 'all' });
     }, heroRef);
 
     return () => ctx.revert();
@@ -58,131 +58,130 @@ export default function LandingPage() {
   };
 
   return (
-    <div ref={heroRef} className="relative overflow-x-hidden radial-bg min-h-screen">
-      {/* Hero Section with scoped Three.js Hero Visual Background */}
-      <section className="relative overflow-hidden">
-        <HeroVisual />
+    <div ref={heroRef} className="relative overflow-hidden radial-bg min-h-screen">
+      {/* Three.js Hero Visual Background */}
+      <HeroVisual />
 
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 sm:pt-20 pb-20 sm:pb-24 text-center">
-          {/* Badge */}
-          <div className="hero-badge inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-space-850/95 border border-electric-500/30 text-electric-400 text-xs font-medium shadow-glass-glow mb-6">
-            <Sparkles className="w-3.5 h-3.5 shrink-0" />
-            <span>Real AI Resume Intelligence — No Fabricated Credentials</span>
+      {/* Hero Section */}
+      <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-24 text-center">
+        {/* Badge */}
+        <div className="hero-badge inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-space-850/90 border border-electric-500/30 text-electric-400 text-xs font-medium shadow-glass-glow mb-6">
+          <Sparkles className="w-3.5 h-3.5" />
+          <span>Real AI Resume Intelligence — No Fabricated Credentials</span>
+        </div>
+
+        {/* Headline */}
+        <h1 className="hero-title text-4xl sm:text-6xl font-extrabold tracking-tight text-white max-w-4xl mx-auto leading-[1.15]">
+          Analyze, Optimize, and Build <br className="hidden sm:inline" />
+          <span className="bg-gradient-to-r from-electric-400 via-electric-500 to-blue-300 bg-clip-text text-transparent">
+            High-Impact Resumes with AI
+          </span>
+        </h1>
+
+        {/* Subtitle */}
+        <p className="hero-subtitle mt-6 text-base sm:text-lg text-slate-300 max-w-2xl mx-auto leading-relaxed">
+          Upload your existing resume to identify keyword gaps against target job descriptions, or build a polished, ATS-optimized resume with verified selectable-text PDF export.
+        </p>
+
+        {/* Dual CTAs */}
+        <div className="hero-cta mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+          {isAuthenticated ? (
+            <>
+              <Link
+                to="/dashboard"
+                className="w-full sm:w-auto flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl font-semibold text-white bg-electric-600 hover:bg-electric-500 shadow-blue-glow transition-all group"
+              >
+                <LayoutDashboard className="w-4 h-4" />
+                <span>Open Dashboard</span>
+                <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+              </Link>
+              <Link
+                to="/builder"
+                className="w-full sm:w-auto flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl font-semibold text-slate-200 bg-space-800/80 hover:bg-space-700/80 border border-blue-500/20 hover:border-blue-500/40 transition-all"
+              >
+                <PenTool className="w-4 h-4 text-electric-400" />
+                <span>Resume Builder</span>
+              </Link>
+            </>
+          ) : (
+            <>
+              <Link
+                to="/register"
+                className="w-full sm:w-auto flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl font-semibold text-white bg-electric-600 hover:bg-electric-500 shadow-blue-glow transition-all group"
+              >
+                <UserPlus className="w-4 h-4" />
+                <span>Get Started Free</span>
+                <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+              </Link>
+              <Link
+                to="/login"
+                className="w-full sm:w-auto flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl font-semibold text-slate-200 bg-space-800/80 hover:bg-space-700/80 border border-blue-500/20 hover:border-blue-500/40 transition-all"
+              >
+                <span>Sign In to Account</span>
+              </Link>
+            </>
+          )}
+        </div>
+
+        {/* Trust Badges */}
+        <div className="mt-12 flex flex-wrap items-center justify-center gap-6 text-xs text-slate-400">
+          <div className="flex items-center gap-1.5">
+            <CheckCircle2 className="w-4 h-4 text-electric-400" />
+            <span>100-Point Transparent Rubric</span>
           </div>
-
-          {/* Headline */}
-          <h1 className="hero-title text-3xl sm:text-6xl font-extrabold tracking-tight text-white max-w-4xl mx-auto leading-[1.15]">
-            Analyze, Optimize, and Build <br className="hidden sm:inline" />
-            <span className="bg-gradient-to-r from-electric-400 via-electric-500 to-blue-300 bg-clip-text text-transparent">
-              High-Impact Resumes with AI
-            </span>
-          </h1>
-
-          {/* Subtitle */}
-          <p className="hero-subtitle mt-6 text-sm sm:text-lg text-slate-300 max-w-2xl mx-auto leading-relaxed">
-            Upload your existing resume to identify keyword gaps against target job descriptions, or build a polished, ATS-optimized resume with verified selectable-text PDF export.
-          </p>
-
-          {/* Dual CTAs */}
-          <div className="hero-cta mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
-            {isAuthenticated ? (
-              <>
-                <Link
-                  to="/dashboard"
-                  className="w-full sm:w-auto flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl font-semibold text-white bg-electric-600 hover:bg-electric-500 shadow-blue-glow transition-all group"
-                >
-                  <LayoutDashboard className="w-4 h-4" />
-                  <span>Open Dashboard</span>
-                  <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
-                </Link>
-                <Link
-                  to="/builder"
-                  className="w-full sm:w-auto flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl font-semibold text-slate-200 bg-space-800/90 hover:bg-space-700/90 border border-blue-500/25 hover:border-blue-500/40 transition-all"
-                >
-                  <PenTool className="w-4 h-4 text-electric-400" />
-                  <span>Resume Builder</span>
-                </Link>
-              </>
-            ) : (
-              <>
-                <Link
-                  to="/register"
-                  className="w-full sm:w-auto flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl font-semibold text-white bg-electric-600 hover:bg-electric-500 shadow-blue-glow transition-all group"
-                >
-                  <UserPlus className="w-4 h-4" />
-                  <span>Get Started Free</span>
-                  <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
-                </Link>
-                <Link
-                  to="/login"
-                  className="w-full sm:w-auto flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl font-semibold text-slate-200 bg-space-800/90 hover:bg-space-700/90 border border-blue-500/25 hover:border-blue-500/40 transition-all"
-                >
-                  <span>Sign In to Account</span>
-                </Link>
-              </>
-            )}
+          <div className="flex items-center gap-1.5">
+            <CheckCircle2 className="w-4 h-4 text-electric-400" />
+            <span>Selectable-Text Vector PDFs</span>
           </div>
-
-          {/* Trust Badges */}
-          <div className="mt-12 flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-xs text-slate-400">
-            <div className="flex items-center gap-1.5">
-              <CheckCircle2 className="w-4 h-4 text-electric-400 shrink-0" />
-              <span>100-Point Transparent Rubric</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <CheckCircle2 className="w-4 h-4 text-electric-400 shrink-0" />
-              <span>Selectable-Text Vector PDFs</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <CheckCircle2 className="w-4 h-4 text-electric-400 shrink-0" />
-              <span>Zero Server Stored Files</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <CheckCircle2 className="w-4 h-4 text-electric-400 shrink-0" />
-              <span>Truthfulness Protocol</span>
-            </div>
+          <div className="flex items-center gap-1.5">
+            <CheckCircle2 className="w-4 h-4 text-electric-400" />
+            <span>Zero Server Stored Files</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <CheckCircle2 className="w-4 h-4 text-electric-400" />
+            <span>Truthfulness Protocol</span>
           </div>
         </div>
       </section>
 
-      {/* Core Workflow Features — Always visible on mobile and desktop */}
-      <section id="features" className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-16 border-t border-blue-500/15">
-        <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-12">
+      {/* Core Workflow Features */}
+      <section id="features" className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-t border-blue-500/10">
+        <div className="text-center max-w-3xl mx-auto mb-12">
           <h2 className="text-xs font-bold text-electric-400 tracking-wider uppercase mb-2">Two Distinct Modules</h2>
           <p className="text-2xl sm:text-3xl font-bold text-white">Engineered for Honest Career Acceleration</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Module 1: Analyzer */}
-          <div className="feature-card glass-panel bg-space-850/95 rounded-2xl p-6 sm:p-8 border border-blue-500/25 hover:border-blue-500/40 transition-all shadow-glass">
-            <div className="w-12 h-12 rounded-xl bg-electric-600/20 border border-electric-500/35 flex items-center justify-center mb-5">
+          <div className="feature-card glass-panel rounded-2xl p-6 sm:p-8 hover:border-blue-500/30 transition-all">
+            <div className="w-12 h-12 rounded-xl bg-electric-600/20 border border-electric-500/30 flex items-center justify-center mb-6">
               <FileSearch className="w-6 h-6 text-electric-400" />
             </div>
-            <h3 className="text-lg sm:text-xl font-bold text-white mb-3">Module 1 — Resume Analyzer</h3>
-            <p className="text-slate-300 text-xs sm:text-sm leading-relaxed mb-6">
+            <h3 className="text-xl font-bold text-white mb-3">Module 1 — Resume Analyzer</h3>
+            <p className="text-slate-300 text-sm leading-relaxed mb-6">
               Extracts text client-side from your PDF or DOCX file, compares it against an optional target role and job description, and evaluates it across 6 clear categories.
             </p>
-            <ul className="space-y-3 text-xs text-slate-200 mb-7">
-              <li className="flex items-start gap-2.5">
+            <ul className="space-y-3 text-xs text-slate-300 mb-8">
+              <li className="flex items-start gap-2">
                 <CheckCircle2 className="w-4 h-4 text-electric-400 shrink-0 mt-0.5" />
                 <span>Overall 0-100 score with exact category breakdowns</span>
               </li>
-              <li className="flex items-start gap-2.5">
+              <li className="flex items-start gap-2">
                 <CheckCircle2 className="w-4 h-4 text-electric-400 shrink-0 mt-0.5" />
                 <span>Strengths backed by direct evidence from your resume text</span>
               </li>
-              <li className="flex items-start gap-2.5">
+              <li className="flex items-start gap-2">
                 <CheckCircle2 className="w-4 h-4 text-electric-400 shrink-0 mt-0.5" />
                 <span>Job description keyword gaps & prioritized recommendations</span>
               </li>
-              <li className="flex items-start gap-2.5">
+              <li className="flex items-start gap-2">
                 <CheckCircle2 className="w-4 h-4 text-electric-400 shrink-0 mt-0.5" />
                 <span>Before-and-after bullet rewrites with strong action verbs</span>
               </li>
             </ul>
             <Link
               to={isAuthenticated ? '/analyzer' : '/register'}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-electric-600/20 hover:bg-electric-600/30 border border-electric-500/30 text-xs font-semibold text-electric-300 hover:text-white transition-all"
+              className="inline-flex items-center gap-2 text-xs font-semibold text-electric-400 hover:text-white transition-colors"
             >
               <span>{isAuthenticated ? 'Test Your Resume' : 'Sign Up to Test Resume'}</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -190,35 +189,35 @@ export default function LandingPage() {
           </div>
 
           {/* Module 2: Builder */}
-          <div className="feature-card glass-panel bg-space-850/95 rounded-2xl p-6 sm:p-8 border border-blue-500/25 hover:border-blue-500/40 transition-all shadow-glass">
-            <div className="w-12 h-12 rounded-xl bg-electric-600/20 border border-electric-500/35 flex items-center justify-center mb-5">
+          <div className="feature-card glass-panel rounded-2xl p-6 sm:p-8 hover:border-blue-500/30 transition-all">
+            <div className="w-12 h-12 rounded-xl bg-electric-600/20 border border-electric-500/30 flex items-center justify-center mb-6">
               <PenTool className="w-6 h-6 text-electric-400" />
             </div>
-            <h3 className="text-lg sm:text-xl font-bold text-white mb-3">Module 2 — Resume Builder</h3>
-            <p className="text-slate-300 text-xs sm:text-sm leading-relaxed mb-6">
+            <h3 className="text-xl font-bold text-white mb-3">Module 2 — Resume Builder</h3>
+            <p className="text-slate-300 text-sm leading-relaxed mb-6">
               A structured form builder allowing you to add, edit, and organize your genuine career facts. Real AI helps polish phrasing without ever inventing fake credentials.
             </p>
-            <ul className="space-y-3 text-xs text-slate-200 mb-7">
-              <li className="flex items-start gap-2.5">
+            <ul className="space-y-3 text-xs text-slate-300 mb-8">
+              <li className="flex items-start gap-2">
                 <CheckCircle2 className="w-4 h-4 text-electric-400 shrink-0 mt-0.5" />
                 <span>Multi-section guided forms: Experience, Skills, Education, Projects</span>
               </li>
-              <li className="flex items-start gap-2.5">
+              <li className="flex items-start gap-2">
                 <CheckCircle2 className="w-4 h-4 text-electric-400 shrink-0 mt-0.5" />
                 <span>AI improvement proposals with review/accept/reject controls</span>
               </li>
-              <li className="flex items-start gap-2.5">
+              <li className="flex items-start gap-2">
                 <CheckCircle2 className="w-4 h-4 text-electric-400 shrink-0 mt-0.5" />
                 <span>Five ATS-friendly templates with custom color themes</span>
               </li>
-              <li className="flex items-start gap-2.5">
+              <li className="flex items-start gap-2">
                 <CheckCircle2 className="w-4 h-4 text-electric-400 shrink-0 mt-0.5" />
                 <span>One-click selectable-text vector PDF export</span>
               </li>
             </ul>
             <Link
               to={isAuthenticated ? '/builder' : '/register'}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-electric-600/20 hover:bg-electric-600/30 border border-electric-500/30 text-xs font-semibold text-electric-300 hover:text-white transition-all"
+              className="inline-flex items-center gap-2 text-xs font-semibold text-electric-400 hover:text-white transition-colors"
             >
               <span>{isAuthenticated ? 'Launch Builder' : 'Sign Up to Build Resume'}</span>
               <ArrowRight className="w-3.5 h-3.5" />

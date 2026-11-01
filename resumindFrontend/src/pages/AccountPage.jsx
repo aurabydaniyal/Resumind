@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
+import { formatRemainingTime } from '../components/WeeklyLimitModal';
 import {
   User,
   Shield,
@@ -17,19 +18,10 @@ import {
   Calendar,
   ArrowRight,
   Clock,
-  Timer,
-  RefreshCw
+  ShieldCheck
 } from 'lucide-react';
 
-function getRemainingParts(resetAt) {
-  const target = resetAt ? new Date(resetAt).getTime() : Date.now() + 7 * 24 * 60 * 60 * 1000;
-  const diff = Math.max(0, target - Date.now());
-  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-  const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-  const minutes = Math.floor((diff / (1000 * 60)) % 60);
-  const seconds = Math.floor((diff / 1000) % 60);
-  return { days, hours, minutes, seconds };
-}
+const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 
 export default function AccountPage() {
   const { user, logout, refreshUser } = useAuth();
@@ -46,10 +38,14 @@ export default function AccountPage() {
     analysesLimit: 10,
     analysesUsed: 0,
     analysesRemaining: 10,
-    resetAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
+    resetAt: null
   };
 
-  const [countdown, setCountdown] = useState(() => getRemainingParts(quota.resetAt));
+  const anyLimitExhausted = quota.resumesRemaining <= 0 || quota.analysesRemaining <= 0;
+  const fallbackTargetRef = useRef(Date.now() + ONE_WEEK_MS);
+  const [countdown, setCountdown] = useState(() =>
+    formatRemainingTime(quota.resetAt ? new Date(quota.resetAt).getTime() : fallbackTargetRef.current)
+  );
 
   useEffect(() => {
     refreshUser();
@@ -78,13 +74,25 @@ export default function AccountPage() {
     loadUserActivity();
   }, [refreshUser]);
 
+  // Live decreasing timer only runs when a weekly limit has run out
   useEffect(() => {
-    setCountdown(getRemainingParts(quota.resetAt));
-    const interval = setInterval(() => {
-      setCountdown(getRemainingParts(quota.resetAt));
-    }, 1000);
+    if (!anyLimitExhausted) return;
+    if (quota.resetAt) {
+      const parsed = new Date(quota.resetAt).getTime();
+      if (!Number.isNaN(parsed) && parsed > Date.now()) {
+        fallbackTargetRef.current = parsed;
+      }
+    }
+
+    const tick = () => {
+      const targetMs = quota.resetAt ? new Date(quota.resetAt).getTime() : fallbackTargetRef.current;
+      setCountdown(formatRemainingTime(targetMs));
+    };
+
+    tick();
+    const interval = setInterval(tick, 1000);
     return () => clearInterval(interval);
-  }, [quota.resetAt]);
+  }, [anyLimitExhausted, quota.resetAt]);
 
   const handleLogout = () => {
     logout();
@@ -177,26 +185,34 @@ export default function AccountPage() {
         </div>
       </div>
 
-      {/* Weekly Usage Quota & Reset Countdown Section */}
+      {/* Weekly Usage Limits Section (Live Countdown Timer only shown when a limit runs out) */}
       <div className="glass-panel p-6 sm:p-7 rounded-2xl space-y-5 border border-blue-500/25">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-blue-500/15">
           <div>
             <h2 className="text-sm sm:text-base font-bold text-white uppercase tracking-wider flex items-center gap-2">
-              <Timer className="w-4 h-4 text-electric-400" />
-              <span>Weekly Usage Quota & Reset Timer</span>
+              <ShieldCheck className="w-4 h-4 text-electric-400" />
+              <span>Weekly Usage Limit Left</span>
             </h2>
             <p className="text-xs text-slate-400 mt-1">
-              Each account includes 10 new resume builds and 10 AI ATS evaluations per 7-day cycle.
+              Each account includes 10 new resume builds and 10 AI ATS evaluations per week.
             </p>
           </div>
 
-          <div className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-space-900 border border-electric-500/30 text-xs">
-            <RefreshCw className="w-3.5 h-3.5 text-electric-400 animate-spin" style={{ animationDuration: '8s' }} />
-            <span className="text-slate-400">Resets in:</span>
-            <strong className="font-mono font-bold text-white">
-              {countdown.days}d {String(countdown.hours).padStart(2, '0')}h {String(countdown.minutes).padStart(2, '0')}m {String(countdown.seconds).padStart(2, '0')}s
-            </strong>
-          </div>
+          {anyLimitExhausted ? (
+            <div className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-amber-950/70 border border-amber-500/35 text-xs">
+              <Clock className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+              <span className="text-amber-200">Limit resets in:</span>
+              <strong className="font-mono font-bold text-white">
+                {String(countdown.days).padStart(2, '0')}d {String(countdown.hours).padStart(2, '0')}h{' '}
+                {String(countdown.minutes).padStart(2, '0')}m {String(countdown.seconds).padStart(2, '0')}s
+              </strong>
+            </div>
+          ) : (
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-emerald-950/60 border border-emerald-500/30 text-emerald-300 text-xs font-semibold">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Weekly Quota Active</span>
+            </div>
+          )}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -236,7 +252,7 @@ export default function AccountPage() {
 
             <div className="flex items-center justify-between text-[11px] text-slate-400">
               <span>Used this week: <strong className="text-slate-200">{quota.resumesUsed}</strong></span>
-              <span>Weekly limit: <strong className="text-slate-200">{quota.resumesLimit} resumes</strong></span>
+              <span>Remaining: <strong className="text-slate-200">{quota.resumesRemaining} builds left</strong></span>
             </div>
           </div>
 
@@ -276,7 +292,7 @@ export default function AccountPage() {
 
             <div className="flex items-center justify-between text-[11px] text-slate-400">
               <span>Used this week: <strong className="text-slate-200">{quota.analysesUsed}</strong></span>
-              <span>Weekly limit: <strong className="text-slate-200">{quota.analysesLimit} analyses</strong></span>
+              <span>Remaining: <strong className="text-slate-200">{quota.analysesRemaining} analyses left</strong></span>
             </div>
           </div>
         </div>
@@ -341,7 +357,7 @@ export default function AccountPage() {
                   <div>
                     <strong className="text-xs font-bold text-white block">Resume Builder Studio</strong>
                     <span className="text-[11px] text-slate-400">
-                      {quota.resumesRemaining} of {quota.resumesLimit} weekly builds remaining
+                      {quota.resumesRemaining} of {quota.resumesLimit} weekly builds left
                     </span>
                   </div>
                 </div>
@@ -359,7 +375,7 @@ export default function AccountPage() {
                   <div>
                     <strong className="text-xs font-bold text-white block">AI Resume Analyzer</strong>
                     <span className="text-[11px] text-slate-400">
-                      {quota.analysesRemaining} of {quota.analysesLimit} weekly analyses remaining
+                      {quota.analysesRemaining} of {quota.analysesLimit} weekly analyses left
                     </span>
                   </div>
                 </div>
